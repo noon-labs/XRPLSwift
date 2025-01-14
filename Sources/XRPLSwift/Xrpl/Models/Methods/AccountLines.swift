@@ -112,7 +112,7 @@ public class AccountLinesRequest: BaseRequest {
      The Address of a second account. If provided, show only lines of trust
      connecting the two accounts.
      */
-    public var peer: Int?
+    public var peer: String?
     /**
      Limit the number of trust lines to retrieve. The server is not required to
      honor this value. Must be within the inclusive range 10 to 400.
@@ -142,7 +142,7 @@ public class AccountLinesRequest: BaseRequest {
         // Optional
         ledgerHash: String? = nil,
         ledgerIndex: LedgerIndex? = nil,
-        peer: Int? = nil,
+        peer: String? = nil,
         limit: Int? = nil,
         marker: AnyCodable? = nil
     ) {
@@ -175,7 +175,7 @@ public class AccountLinesRequest: BaseRequest {
         account = try values.decode(String.self, forKey: .account)
         ledgerHash = try values.decodeIfPresent(String.self, forKey: .ledgerHash)
         ledgerIndex = try values.decodeIfPresent(LedgerIndex.self, forKey: .ledgerIndex)
-        peer = try? values.decodeIfPresent(Int.self, forKey: .peer)
+        peer = try? values.decodeIfPresent(String.self, forKey: .peer)
         limit = try? values.decodeIfPresent(Int.self, forKey: .limit)
         marker = try? values.decodeIfPresent(AnyCodable.self, forKey: .marker)
         try super.init(from: decoder)
