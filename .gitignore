@@ -1,0 +1,7 @@
+.build
+.swiftpm
+XRPLSwift.xcodeproj
+!.gitignore
+.DS_Store
+.env
+XRPLSwift.doccarchive
