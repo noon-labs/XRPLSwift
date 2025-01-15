@@ -110,6 +110,26 @@ public struct TrustSetFlagsInterface {
             self.tfClearFreeze = tfClearFreeze
         }
     }
+    
+    var trustSetFlags: [TrustSetFlag] {
+        var flags: [TrustSetFlag] = []
+        if tfSetfAuth == true {
+            flags.append(.tfSetfAuth)
+        }
+        if tfSetNoRipple == true {
+            flags.append(.tfSetNoRipple)
+        }
+        if tfClearNoRipple == true {
+            flags.append(.tfClearNoRipple)
+        }
+        if tfSetFreeze == true {
+            flags.append(.tfSetFreeze)
+        }
+        if tfClearFreeze == true {
+            flags.append(.tfClearFreeze)
+        }
+        return flags
+    }
 }
 
 public class TrustSet: BaseTransaction {
@@ -143,7 +163,9 @@ public class TrustSet: BaseTransaction {
         self.limitAmount = limitAmount
         self.qualityIn = qualityIn
         self.qualityOut = qualityOut
-        super.init(account: "", transactionType: "TrustSet")
+        super.init(account: "",
+                   transactionType: "TrustSet",
+                   flags: try! convertTrustSetFlagsToNumber(flags: flags.trustSetFlags))
     }
 
     override public init(json: [String: AnyObject]) throws {
