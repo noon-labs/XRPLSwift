@@ -141,7 +141,7 @@ public class TrustSet: BaseTransaction {
         self.qualityOut = qualityOut
         super.init(account: "",
                    transactionType: "TrustSet",
-                   flags: try! convertTrustSetFlagsToNumber(flags: flags.trustSetFlags))
+                   flags: convertTrustSetFlagsToNumber(flags: flags.trustSetFlags))
     }
 
     override public init(json: [String: AnyObject]) throws {

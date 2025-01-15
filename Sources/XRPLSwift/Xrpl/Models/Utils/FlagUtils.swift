@@ -115,7 +115,7 @@ func convertPaymentTransactionFlagsToNumber(flags: [PaymentFlags]) throws -> Int
     }
 }
 
-func convertTrustSetFlagsToNumber(flags: [TrustSetFlag]) throws -> Int {
+func convertTrustSetFlagsToNumber(flags: [TrustSetFlag]) -> Int {
     return flags.reduce(0) { result, flag in
         result | flag.rawValue
     }
