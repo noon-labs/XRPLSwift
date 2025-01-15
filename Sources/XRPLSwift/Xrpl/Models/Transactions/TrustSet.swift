@@ -40,30 +40,6 @@ public enum TrustSetFlag: Int {
     // Unfreeze the trust line.
 }
 
-extension Array where Element == TrustSetFlag {
-    var interface: [TrustSetFlag: Bool] {
-        var flags: [TrustSetFlag: Bool] = [:]
-        for flag in self {
-            if flag == .tfSetfAuth {
-                flags[flag] = true
-            }
-            if flag == .tfSetNoRipple {
-                flags[flag] = true
-            }
-            if flag == .tfClearNoRipple {
-                flags[flag] = true
-            }
-            if flag == .tfSetFreeze {
-                flags[flag] = true
-            }
-            if flag == .tfClearFreeze {
-                flags[flag] = true
-            }
-        }
-        return flags
-    }
-}
-
 // public struct TrustSetFlagsInterface: GlobalFlags {
 public struct TrustSetFlagsInterface {
     /**

@@ -116,13 +116,7 @@ func convertPaymentTransactionFlagsToNumber(flags: [PaymentFlags]) throws -> Int
 }
 
 func convertTrustSetFlagsToNumber(flags: [TrustSetFlag]) throws -> Int {
-    let interface = flags.interface
-    return try interface.keys.reduce(0) { resultFlags, flag in
-        if TrustSetFlag(rawValue: flag.rawValue) == nil {
-            throw ValidationError("flag \(flag) does not exist in flagEnum: \(TrustSetFlag.self)")
-        }
-        // swiftlint:disable:next force_unwrapping
-        return interface[flag]! == true
-            ? resultFlags | flag.rawValue : resultFlags
+    return flags.reduce(0) { result, flag in
+        result | flag.rawValue
     }
 }
