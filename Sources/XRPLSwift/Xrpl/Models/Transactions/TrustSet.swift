@@ -66,25 +66,11 @@ public struct TrustSetFlagsInterface {
         tfSetFreeze: Bool? = nil,
         tfClearFreeze: Bool? = nil
     ) {
-        if self.tfSetfAuth != nil {
-            self.tfSetfAuth = tfSetAuth
-        }
-        
-        if self.tfSetNoRipple != nil {
-            self.tfSetNoRipple = tfSetNoRipple
-        }
-        
-        if self.tfClearNoRipple != nil {
-            self.tfClearNoRipple = tfClearNoRipple
-        }
-        
-        if self.tfSetFreeze != nil {
-            self.tfSetFreeze = tfSetFreeze
-        }
-        
-        if self.tfClearFreeze != nil {
-            self.tfClearFreeze = tfClearFreeze
-        }
+        self.tfSetfAuth = tfSetAuth
+        self.tfSetNoRipple = tfSetNoRipple
+        self.tfClearNoRipple = tfClearNoRipple
+        self.tfSetFreeze = tfSetFreeze
+        self.tfClearFreeze = tfClearFreeze
     }
     
     var trustSetFlags: [TrustSetFlag] {
