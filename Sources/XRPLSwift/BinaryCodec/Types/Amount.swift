@@ -59,7 +59,9 @@ func verifyXrpValue(_ xrpValue: String) throws {
     }
 
     // Within valid range
-    let decimal = Decimal(string: xrpValue)!
+    guard let decimal = Decimal(string: xrpValue) else {
+        throw BinaryError.unknownError(error: "\(xrpValue) is an invalid XRP amount.")
+    }
     // Zero is less than both the min and max XRP amounts but is valid.
     if decimal.isZero {
         return
