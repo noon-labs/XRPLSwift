@@ -31,7 +31,7 @@ public class WalletSigner: Wallet {
         }
 
         for txOrBlob in transactions {
-            let tx: Transaction = getDecodedTransaction(txOrBlob)
+            let tx: Transaction = try getDecodedTransaction(txOrBlob)
             let jsonTx: [String: AnyObject] = try tx.toJson()
             /*
              This will throw a more clear error for JS users if any of the supplied transactions has incorrect formatting
@@ -48,8 +48,8 @@ public class WalletSigner: Wallet {
             }
         }
 
-        let decodedTransactions: [Transaction] = transactions.map { tx in
-            return getDecodedTransaction(tx)
+        let decodedTransactions: [Transaction] = try transactions.map { tx in
+            return try getDecodedTransaction(tx)
         }
 
         try validateTransactionEquivalence(decodedTransactions)
@@ -84,7 +84,7 @@ public class WalletSigner: Wallet {
      Returns true if tx has a valid signature, and returns false otherwise.
      */
     public static func verifySignature(_ tx: String) throws -> Bool {
-        let decodedTx: Transaction = self.getDecodedTransaction(tx)
+        let decodedTx: Transaction = try self.getDecodedTransaction(tx)
         let json: [String: AnyObject] = try decodedTx.toJson()
         return try! Keypairs.verify(
             Data(hex: json["TxnSignature"] as! String).bytes,
@@ -93,7 +93,7 @@ public class WalletSigner: Wallet {
         )
     }
     public static func verifySignature(_ tx: Transaction) throws -> Bool {
-        let decodedTx: Transaction = WalletSigner.getDecodedTransaction(tx)
+        let decodedTx: Transaction = try WalletSigner.getDecodedTransaction(tx)
         let json: [String: AnyObject] = try decodedTx.toJson()
         return try! Keypairs.verify(
             try BinaryCodec.encodeForSigning(json).bytes,
@@ -168,14 +168,20 @@ public class WalletSigner: Wallet {
         return BigUInt(hex, radix: numberOfBitsInHex)!
     }
 
-    public static func getDecodedTransaction(_ tx: String) -> Transaction {
+    public static func getDecodedTransaction(_ tx: String) throws -> Transaction {
         let decoded: [String: AnyObject] = BinaryCodec.decode(tx)
-        return try! Transaction(decoded)!
+        guard let tx = try Transaction(decoded) else {
+            throw UnexpectedError("WalletSigner decode tx error")
+        }
+        return tx
     }
 
-    public static func getDecodedTransaction(_ tx: Transaction) -> Transaction {
+    public static func getDecodedTransaction(_ tx: Transaction) throws -> Transaction {
         let encoded = try! BinaryCodec.encode(tx.toJson())
         let decoded: [String: AnyObject] = BinaryCodec.decode(encoded)
-        return try! Transaction(decoded)!
+        guard let tx = try Transaction(decoded) else {
+            throw UnexpectedError("WalletSigner decode tx error")
+        }
+        return tx
     }
 }
