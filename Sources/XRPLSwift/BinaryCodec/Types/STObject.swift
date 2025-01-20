@@ -308,7 +308,6 @@ class STObject: SerializedType {
         }
 
         var isUnlModify = false
-
         for field in sortedKeys {
             var associatedValue: SerializedType?
             do {
@@ -352,7 +351,8 @@ class STObject: SerializedType {
             if field.name == OBJECT_END_MARKER {
                 break
             }
-            let jsonValue: Any = (try! parser.readFieldValue(field)! as! SerializedType).toJson()
+            let value = try! parser.readFieldValue(field)!
+            let jsonValue: Any = value.toJson()
             accumulator[field.name] = enumToStr(field: field.name, value: jsonValue) as AnyObject
         }
         return accumulator

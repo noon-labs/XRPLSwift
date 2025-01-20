@@ -63,8 +63,14 @@ class Vector256: SerializedType {
 
         var hashList: [String] = []
         for i in stride(from: 0, to: self.bytes.count, by: HASH_LENGTH_BYTES) {
-            hashList.append([UInt8](self.bytes[i...i + HASH_LENGTH_BYTES - 1]).toHex)
+            let hash = [UInt8](self.bytes[i...i + HASH_LENGTH_BYTES - 1]).toHex
+            hashList.append(hash)
         }
         return hashList
+    }
+    
+    override func toJson() -> Any {
+        let stringArray: [String] = toJson()
+        return stringArray
     }
 }
