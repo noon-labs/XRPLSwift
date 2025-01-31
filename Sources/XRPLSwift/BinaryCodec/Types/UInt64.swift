@@ -58,6 +58,9 @@ class xUInt64: xUInt {
     }
 
     class func from(_ value: String) throws -> xUInt64 {
+        if let intValue = Int(value) {
+            return try! xUInt64.from(intValue)
+        }
         let regex = try! NSRegularExpression(pattern: HEXREGEX64)
         let nsrange = NSRange(value.startIndex..<value.endIndex, in: value)
         if regex.matches(in: value, range: nsrange).isEmpty {

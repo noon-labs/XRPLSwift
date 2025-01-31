@@ -68,7 +68,8 @@ struct AssociatedValue {
     //            return
     //        }
     //    }
-
+    
+    // swiftlint:disable:next cyclomatic_complexity
     func from() throws -> SerializedType? {
         if field.associatedType.self is AccountID.Type {
             return try AccountID.from(xaddressDecoded[field.name]! as! String)
@@ -119,13 +120,31 @@ struct AssociatedValue {
             throw BinaryError.unknownError(error: "Invalid SerializedType Amount")
         }
         if field.associatedType.self is xUInt32.Type {
-            return xUInt32.from(xaddressDecoded[field.name]! as! Int)
+            if let value = xaddressDecoded[field.name] as? String {
+                return try! xUInt32.from(value)
+            }
+            if let value = xaddressDecoded[field.name] as? Int {
+                return try! xUInt32.from(value)
+            }
+            throw BinaryError.unknownError(error: "Invalid SerializedType Amount")
         }
         if field.associatedType.self is xUInt16.Type {
-            return xUInt16.from(xaddressDecoded[field.name]! as! Int)
+            if let value = xaddressDecoded[field.name] as? String {
+                return try! xUInt16.from(value)
+            }
+            if let value = xaddressDecoded[field.name] as? Int {
+                return try! xUInt16.from(value)
+            }
+            throw BinaryError.unknownError(error: "Invalid SerializedType Amount")
         }
         if field.associatedType.self is xUInt8.Type {
-            return xUInt8.from(xaddressDecoded[field.name]! as! Int)
+            if let value = xaddressDecoded[field.name] as? String {
+                return try! xUInt8.from(value)
+            }
+            if let value = xaddressDecoded[field.name] as? Int {
+                return try! xUInt8.from(value)
+            }
+            throw BinaryError.unknownError(error: "Invalid SerializedType Amount")
         }
         if field.associatedType.self is Vector256.Type {
             return try Vector256.from(xaddressDecoded[field.name]! as! [String])

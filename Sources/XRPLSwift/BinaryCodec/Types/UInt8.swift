@@ -10,6 +10,7 @@
 import Foundation
 
 let WIDTH8: Int = 1  // 8 / 8
+internal let HEXREGEX8: String = "^[a-fA-F0-9]{1,2}$"
 
 // swiftlint:disable:next type_name
 class xUInt8: xUInt {
@@ -48,8 +49,24 @@ class xUInt8: xUInt {
      Raises:
      XRPLBinaryCodecException: If a UInt8 cannot be constructed.
      */
-    class func from(_ value: Int) -> xUInt8 {
+    class func from(_ value: Int) throws -> xUInt8 {
+        if value < 0 {
+            throw BinaryError.unknownError(error: "\(value) must be an unsigned integer")
+        }
         let valueBytes = Data(bytes: value.data.bytes, count: WIDTH8)
         return xUInt8(valueBytes.bytes.reversed())
+    }
+    
+    class func from(_ value: String) throws -> xUInt8 {
+        if let intValue = Int(value) {
+            return try! xUInt8.from(intValue)
+        }
+        let regex = try! NSRegularExpression(pattern: HEXREGEX8)
+        let nsrange = NSRange(value.startIndex..<value.endIndex, in: value)
+        if regex.matches(in: value, range: nsrange).isEmpty {
+            throw BinaryError.unknownError(error: "\(value) is not a valid hex string")
+        }
+        let strBuf = value.padding(toLength: 2, withPad: "0", startingAt: 0)
+        return xUInt8(strBuf.hexToBytes)
     }
 }
