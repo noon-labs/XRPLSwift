@@ -38,19 +38,31 @@ public enum PaymentFlags: Int {
      */
 }
 
-extension Array where Element == PaymentFlags {
-    var interface: [PaymentFlags: Bool] {
-        var flags: [PaymentFlags: Bool] = [:]
-        for flag in self {
-            if flag == .tfNoDirectRipple {
-                flags[flag] = true
-            }
-            if flag == .tfPartialPayment {
-                flags[flag] = true
-            }
-            if flag == .tfLimitQuality {
-                flags[flag] = true
-            }
+public struct PaymentFlagsInterface {
+    public var tfNoDirectRipple: Bool?
+    public var tfPartialPayment: Bool?
+    public var tfLimitQuality: Bool?
+    
+    public init(
+        tfNoDirectRipple: Bool? = nil,
+        tfPartialPayment: Bool? = nil,
+        tfLimitQuality: Bool? = nil
+    ) {
+        self.tfNoDirectRipple = tfNoDirectRipple
+        self.tfPartialPayment = tfPartialPayment
+        self.tfLimitQuality = tfLimitQuality
+    }
+    
+    var paymentFlags: [PaymentFlags] {
+        var flags: [PaymentFlags] = []
+        if tfNoDirectRipple == true {
+            flags.append(.tfNoDirectRipple)
+        }
+        if tfPartialPayment == true {
+            flags.append(.tfPartialPayment)
+        }
+        if tfLimitQuality == true {
+            flags.append(.tfLimitQuality)
         }
         return flags
     }
@@ -147,7 +159,8 @@ public class Payment: BaseTransaction, XrplTransaction {
         paths: [Path]? = nil,
         sendMax: Amount? = nil,
         deliverMin: Amount? = nil,
-        deliverMax: Amount? = nil
+        deliverMax: Amount? = nil,
+        flags: PaymentFlagsInterface = .init()
     ) {
         self.amount = amount
         self.destination = destination
@@ -157,7 +170,9 @@ public class Payment: BaseTransaction, XrplTransaction {
         self.sendMax = sendMax
         self.deliverMin = deliverMin
         self.deliverMax = deliverMax
-        super.init(account: "", transactionType: "Payment")
+        super.init(account: "",
+                   transactionType: "Payment",
+                   flags: convertPaymentTransactionFlagsToNumber(flags: flags.paymentFlags))
     }
 
     override public init(json: [String: AnyObject]) throws {

@@ -103,15 +103,9 @@ func convertPaymentChannelClaimFlagsToNumber(flags: [PaymentChannelClaimFlag]) t
     }
 }
 
-func convertPaymentTransactionFlagsToNumber(flags: [PaymentFlags]) throws -> Int {
-    let interface = flags.interface
-    return try interface.keys.reduce(0) { resultFlags, flag in
-        if PaymentFlags(rawValue: flag.rawValue) == nil {
-            throw ValidationError("flag \(flag) does not exist in flagEnum: \(PaymentFlags.self)")
-        }
-        // swiftlint:disable:next force_unwrapping
-        return interface[flag]! == true
-            ? resultFlags | flag.rawValue : resultFlags
+func convertPaymentTransactionFlagsToNumber(flags: [PaymentFlags]) -> Int {
+    return flags.reduce(0) { result, flag in
+        result | flag.rawValue
     }
 }
 
