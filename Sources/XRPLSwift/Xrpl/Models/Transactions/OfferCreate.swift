@@ -50,27 +50,41 @@ public enum OfferCreateFlags: Int, Codable {
      */
 }
 
-extension Array where Element == OfferCreateFlags {
-    var interface: [OfferCreateFlags: Bool] {
-        var flags: [OfferCreateFlags: Bool] = [:]
-        for flag in self {
-            if flag == .tfPassive {
-                flags[flag] = true
-            }
-            if flag == .tfImmediateOrCancel {
-                flags[flag] = true
-            }
-            if flag == .tfFillOrKill {
-                flags[flag] = true
-            }
-            if flag == .tfSell {
-                flags[flag] = true
-            }
+public struct OfferCreateFlagsInterface {
+    public var tfPassive: Bool?
+    public var tfImmediateOrCancel: Bool?
+    public var tfFillOrKill: Bool?
+    public var tfSell: Bool?
+    
+    public init(
+        tfPassive: Bool? = nil,
+        tfImmediateOrCancel: Bool? = nil,
+        tfFillOrKill: Bool? = nil,
+        tfSell: Bool? = nil
+    ) {
+        self.tfPassive = tfPassive
+        self.tfImmediateOrCancel = tfImmediateOrCancel
+        self.tfFillOrKill = tfFillOrKill
+        self.tfSell = tfSell
+    }
+    
+    var offerCreateFlags: [OfferCreateFlags] {
+        var flags: [OfferCreateFlags] = []
+        if tfPassive == true {
+            flags.append(.tfPassive)
+        }
+        if tfImmediateOrCancel == true {
+            flags.append(.tfImmediateOrCancel)
+        }
+        if tfFillOrKill == true {
+            flags.append(.tfFillOrKill)
+        }
+        if tfSell == true {
+            flags.append(.tfSell)
         }
         return flags
     }
 }
-
 /**
  Represents an `OfferCreate <https://xrpl.org/offercreate.html>`_ transaction,
  which executes a limit order in the `decentralized exchange
@@ -116,13 +130,16 @@ public class OfferCreate: BaseTransaction {
         takerGets: Amount,
         takerPays: Amount,
         expiration: Int? = nil,
-        offerSequence: Int? = nil
+        offerSequence: Int? = nil,
+        flags: OfferCreateFlagsInterface = .init()
     ) {
         self.takerGets = takerGets
         self.takerPays = takerPays
         self.expiration = expiration
         self.offerSequence = offerSequence
-        super.init(account: "", transactionType: "OfferCreate")
+        super.init(account: "",
+                   transactionType: "OfferCreate",
+                   flags: convertOfferCreateFlagsToNumber(flags: flags.offerCreateFlags))
     }
 
     override public init(json: [String: AnyObject]) throws {

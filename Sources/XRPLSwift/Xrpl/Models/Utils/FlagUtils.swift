@@ -67,39 +67,21 @@ public func setTransactionFlagsToNumber(tx: inout [String: AnyObject]) throws {
     }
 }
 
-func convertAccountSetFlagsToNumber(flags: [AccountSetTfFlags]) throws -> Int {
-    let interface = flags.interface
-    return try interface.keys.reduce(0) { resultFlags, flag in
-        if AccountSetTfFlags(rawValue: flag.rawValue) == nil {
-            throw ValidationError("flag \(flag) does not exist in flagEnum: \(AccountSetTfFlags.self)")
-        }
-        // swiftlint:disable:next force_unwrapping
-        return interface[flag]! == true
-            ? resultFlags | flag.rawValue : resultFlags
+func convertAccountSetFlagsToNumber(flags: [AccountSetTfFlags]) -> Int {
+    return flags.reduce(0) { result, flag in
+        result | flag.rawValue
     }
 }
 
-func convertOfferCreateFlagsToNumber(flags: [OfferCreateFlags]) throws -> Int {
-    let interface = flags.interface
-    return try interface.keys.reduce(0) { resultFlags, flag in
-        if OfferCreateFlags(rawValue: flag.rawValue) == nil {
-            throw ValidationError("flag \(flag) does not exist in flagEnum: \(OfferCreateFlags.self)")
-        }
-        // swiftlint:disable:next force_unwrapping
-        return interface[flag]! == true
-            ? resultFlags | flag.rawValue : resultFlags
+func convertOfferCreateFlagsToNumber(flags: [OfferCreateFlags]) -> Int {
+    return flags.reduce(0) { result, flag in
+        result | flag.rawValue
     }
 }
 
-func convertPaymentChannelClaimFlagsToNumber(flags: [PaymentChannelClaimFlag]) throws -> Int {
-    let interface = flags.interface
-    return try interface.keys.reduce(0) { resultFlags, flag in
-        if PaymentChannelClaimFlag(rawValue: flag.rawValue) == nil {
-            throw ValidationError("flag \(flag) does not exist in flagEnum: \(PaymentChannelClaimFlag.self)")
-        }
-        // swiftlint:disable:next force_unwrapping
-        return interface[flag]! == true
-            ? resultFlags | flag.rawValue : resultFlags
+func convertPaymentChannelClaimFlagsToNumber(flags: [PaymentChannelClaimFlag]) -> Int {
+    return flags.reduce(0) { result, flag in
+        result | flag.rawValue
     }
 }
 
