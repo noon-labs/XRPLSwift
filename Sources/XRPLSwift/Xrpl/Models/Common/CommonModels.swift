@@ -67,7 +67,7 @@ enum Currency {
     case issuedCurrency (IssuedCurrency)
 }
 
-public struct IssuedCurrencyAmount: IssuedCurrency, Codable {
+public struct IssuedCurrencyAmount: IssuedCurrency, Codable, Equatable {
     public var currency: String
     public var issuer: String
     public var value: String
@@ -99,7 +99,7 @@ enum AmountType {
     case ic
 }
 
-public enum Amount: Codable {
+public enum Amount: Codable, Equatable {
     case string(String)
     case ic(IssuedCurrencyAmount)
 }
