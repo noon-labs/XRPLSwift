@@ -286,11 +286,14 @@ public class Connection {
         }
         // Create the connection timeout, in case the connection hangs longer than expected.
         // Connection listeners: these stay attached only until a connection is done/open.
-        guard let url = url, let uri = URL(string: url), let isport = uri.port, let isscheme = uri.scheme, let ishost = uri.host else {
+        guard let url = url, let uri = URL(string: url), let isscheme = uri.scheme, let ishost = uri.host else {
             throw ConnectionError("Connection: invalid url")
         }
+        let port = uri.port ?? (isscheme == "wss" ? 443 : 80)
+        let path = uri.path.isEmpty ? "/" : uri.path
+
         let client: WebSocketClient = createWebSocket(url: url, config: self.config)!
-        try client.connect(scheme: isscheme, host: ishost, port: isport, onUpgrade: { ws -> Void in
+        try client.connect(scheme: isscheme, host: ishost, port: port, path: path, onUpgrade: { ws -> Void in
             self.ws = ws
             Task {
                 // TODO: This goes after client.connect in js, but swift doesnt(verify) return the ws. we would .wait
@@ -313,7 +316,7 @@ public class Connection {
                 connectionTimeoutID.invalidate()
             })
         }
-        
+
         return await self.connectionManager.awaitConnection()
     }
 
@@ -499,21 +502,21 @@ public class Connection {
         //        self.ws.removeAllListeners()
         connectionTimeoutID.invalidate()
         // Add new, long-term connected listeners for messages and errors
-        
+
         self.ws?.eventLoop.execute {
             self.ws?.onText({ _, message in
                 self.onMessage(message: message)
             })
-            
-            
+
+
             // TESTING ONLY
             // TODO: This function is only used in the MockRippled Testing Response
-            
+
             self.ws?.onBinary({ _, message in
                 let data = Data(buffer: message)
                 self.onMessage(data: data)
             })
-            
+
             //        self.ws.on("error", (error) =>
             //            self.emit("error", "websocket", error.message, error),
             //        )
@@ -529,12 +532,12 @@ public class Connection {
                 try? self.requestManager.rejectAll(error: DisconnectedError("websocket was closed, \(reason)"))
                 //            self.ws.removeAllListeners()
                 self.ws = nil
-                
+
                 if code == nil {
                     let reasonText = reason
                     // swiftlint:disable:next line_length
                     NSLog("Disconnected but the disconnect code was undefined (The given reason was \(reasonText)). This could be caused by an exception being thrown during a `connect` callback. Disconnecting with code 1011 to indicate an internal error has occurred.")
-                    
+
                     /*
                      * Error code 1011 represents an Internal Error according to
                      * https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
@@ -547,7 +550,7 @@ public class Connection {
                     guard let code = code else { return }
                     print("disconnected: \(code)")
                 }
-                
+
                 /*
                  * If this wasn"t a manual disconnect, then lets reconnect ASAP.
                  * Code can be undefined if there"s an exception while connecting.
@@ -557,7 +560,7 @@ public class Connection {
                 }
             }
         }
-        
+
         // Finalize the connection and resolve all awaiting connect() requests
         do {
             self.retryConnectionBackoff.reset()
