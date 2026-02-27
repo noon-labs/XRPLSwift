@@ -13,7 +13,7 @@ import Foundation
 internal let HASH_LENGTH_BYTES: Int = 32
 
 class Vector256: SerializedType {
-    public static var ZERO256 = Vector256(Data(bytes: [], count: HASH_LENGTH_BYTES).bytes)
+    public static var ZERO256 = Vector256([UInt8](repeating: 0, count: HASH_LENGTH_BYTES))
 
     override init(_ bytes: [UInt8]? = nil) {
         super.init(bytes ?? Vector256.ZERO256.bytes)

@@ -130,7 +130,7 @@ public class Keypairs {
 
     public static func sign(_ message: [UInt8], _ privateKey: String) throws -> [UInt8] {
         let algorithm = Keypairs.getAlgorithmFromKey(privateKey).algorithm
-        return try algorithm.sign(message: message, privateKey: Data(hex: privateKey).bytes)
+        return try algorithm.sign(message: message, privateKey: Array(Data(hex: privateKey)))
     }
 
     public static func verify(_ signature: [UInt8], _ message: [UInt8], _ publicKey: String) throws -> Bool {
@@ -138,12 +138,12 @@ public class Keypairs {
         return try algorithm.verify(
             signature: signature,
             message: message,
-            publicKey: Data(hex: publicKey).bytes
+            publicKey: Array(Data(hex: publicKey))
         )
     }
 
     public static func deriveAddressFromBytes(_ publicKeyBytes: Data) throws -> String {
-        return try XrplCodec.encodeClassicAddress(publicKeyBytes.computePublicKeyHash().bytes)
+        return try XrplCodec.encodeClassicAddress(Array(publicKeyBytes.computePublicKeyHash()))
     }
 
     public static func deriveAddress(_ publicKey: String) throws -> String {

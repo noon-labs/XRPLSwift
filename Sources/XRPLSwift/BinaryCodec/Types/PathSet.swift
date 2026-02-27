@@ -54,7 +54,7 @@ class xPathStep: SerializedType {
             buffer += issuer.bytes
             dataType |= TYPE_ISSUER
         }
-        return xPathStep(Data(hex: String(dataType, radix: 16).uppercased()).bytes + buffer)
+        return xPathStep(Array(Data(hex: String(dataType, radix: 16).uppercased())) + buffer)
     }
     class func fromParser(
         parser: BinaryParser,
@@ -71,7 +71,7 @@ class xPathStep: SerializedType {
         if (dataType & TYPE_ISSUER) != 0 {
             buffer += try! parser.read(AccountID.getLength())
         }
-        return xPathStep(Data(hex: String(dataType, radix: 16).uppercased()).bytes + buffer)
+        return xPathStep(Array(Data(hex: String(dataType, radix: 16).uppercased())) + buffer)
     }
 
     override func toJson() -> [String: AnyObject] {

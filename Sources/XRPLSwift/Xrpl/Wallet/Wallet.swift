@@ -378,8 +378,8 @@ public class Wallet {
         let messageHex: String = try BinaryCodec.encodeForSigning(tx)
         let signature = tx["TxnSignature"] as? String
         return try Keypairs.verify(
-            Data(hex: signature!).bytes,
-            Data(hex: messageHex).bytes,
+            Array(Data(hex: signature!)),
+            Array(Data(hex: messageHex)),
             self.publicKey
         )
     }
@@ -520,7 +520,7 @@ func computeSignature(
     //    }
     let encoded = try BinaryCodec.encodeForSigning(tx)
     return try Keypairs.sign(
-        Data(hex: encoded).bytes,
+        Array(Data(hex: encoded)),
         privateKey
     ).toHex
 }

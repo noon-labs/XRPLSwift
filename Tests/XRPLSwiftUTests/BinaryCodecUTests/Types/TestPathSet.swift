@@ -78,7 +78,7 @@ let expectedJson: [[[String: AnyObject]]] = [
 final class TestPathSet: XCTestCase {
     func testFromValue() {
         let pathset = try! xPathSet.from(value: expectedJson)
-        XCTAssertEqual(buffer.bytes, pathset.bytes)
+        XCTAssertEqual(Array(buffer), pathset.bytes)
     }
 
     func testFromValueToJson() {
@@ -88,7 +88,7 @@ final class TestPathSet: XCTestCase {
     }
 
     func testFromParserToJson() {
-        let parser = BinaryParser(hex: buffer.bytes.toHex)
+        let parser = BinaryParser(hex: Array(buffer).toHex)
         let pathset = try! xPathSet.fromParser(parser: parser)
         let result: [[[String: AnyObject]]] = pathset.toJson()
         XCTAssertEqual(result.count, expectedJson.count)

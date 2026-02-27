@@ -53,8 +53,8 @@ class xUInt32: xUInt {
         if value < 0 {
             throw BinaryError.unknownError(error: "\(value) must be an unsigned integer")
         }
-        let valueBytes = Data(bytes: value.data.bytes, count: WIDTH32)
-        return xUInt32(valueBytes.bytes.reversed())
+        let valueBytes = Array(value.data).prefix(WIDTH32)
+        return xUInt32(Array(valueBytes).reversed())
     }
     
     class func from(_ value: String) throws -> xUInt32 {

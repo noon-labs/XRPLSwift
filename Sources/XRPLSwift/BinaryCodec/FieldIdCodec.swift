@@ -126,6 +126,6 @@ public class FieldIdCodec {
      A Data representation of  the FieldId Codec
      */
     class func uint8ToBytes(_ i: Int) -> Data {
-        return Data(bytes: i.data.bytes, count: 1)
+        return Data(Array(i.data).prefix(1))
     }
 }

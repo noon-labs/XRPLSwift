@@ -15,7 +15,7 @@ import XCTest
 final class TestKeypairsCodec: XCTestCase {
 
     func testAccountID() {
-        let eactual = try! XrplCodec.encodeClassicAddress(Data(hex: "BA8E78626EE42C41B46D46C3048DF3A1C3C87072").bytes)
+        let eactual = try! XrplCodec.encodeClassicAddress(Array(Data(hex: "BA8E78626EE42C41B46D46C3048DF3A1C3C87072")))
         XCTAssertEqual(eactual, "rJrRMgiRgrU6hDF4pgu5DXQdWyPbY35ErN")
 
         let dactual = try! XrplCodec.decodeClassicAddress("rJrRMgiRgrU6hDF4pgu5DXQdWyPbY35ErN")
@@ -23,7 +23,7 @@ final class TestKeypairsCodec: XCTestCase {
     }
 
     func testNodePublic() {
-        let eactual = try! XrplCodec.encodeNodePublicKey(Data(hex: "0388E5BA87A000CB807240DF8C848EB0B5FFA5C8E5A521BC8E105C0F0A44217828").bytes)
+        let eactual = try! XrplCodec.encodeNodePublicKey(Array(Data(hex: "0388E5BA87A000CB807240DF8C848EB0B5FFA5C8E5A521BC8E105C0F0A44217828")))
         XCTAssertEqual(eactual, "n9MXXueo837zYH36DvMc13BwHcqtfAWNJY5czWVbp7uYTj7x17TH")
 
         let dactual = try! XrplCodec.decodeNodePublicKey("n9MXXueo837zYH36DvMc13BwHcqtfAWNJY5czWVbp7uYTj7x17TH")

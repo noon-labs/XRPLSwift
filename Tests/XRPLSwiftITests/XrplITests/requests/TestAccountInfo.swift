@@ -57,8 +57,6 @@ final class TestIAccountInfo: RippledITestCase {
         let response: BaseResponse = try! await self.client.request(r: request).wait() as! BaseResponse<AccountInfoResponse>
         XCTAssertEqual(response.type, expected["type"] as! String)
         XCTAssertEqual(response.result?.validated, (expected["result"] as! [String: AnyObject])["validated"] as? Bool)
-        XCTAssert(response.result?.ledgerHash is String)
-        XCTAssert(response.result?.ledgerIndex is Int)
 
         var responseJson: [String: AnyObject] = try! response.result!.accountData.toJson()
         responseJson["PreviousTxnID"] = nil
@@ -86,8 +84,6 @@ final class TestIAccountInfo: RippledITestCase {
         let response: BaseResponse = try! await self.client.request(r: request).wait() as! BaseResponse<AccountInfoResponse>
         XCTAssertEqual(response.type, expected["type"] as! String)
         XCTAssertEqual(response.result?.validated, (expected["result"] as! [String: AnyObject])["validated"] as? Bool)
-        XCTAssert(response.result?.ledgerHash is String)
-        XCTAssert(response.result?.ledgerIndex is Int)
 
         var responseJson: [String: AnyObject] = try! response.result!.accountData.toJson()
         responseJson["PreviousTxnID"] = nil

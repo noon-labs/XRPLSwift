@@ -90,7 +90,7 @@ final class TestApi: XCTestCase {
         let publicKey = TestApi.fixtures.SECP256K1_KEYPAIR.publicKey
         let message = TestApi.fixtures.SECP256K1_MESSAGE
         let messageBytes = message.bytes
-        XCTAssertTrue(try Keypairs.verify(Data(hex: signature).bytes, messageBytes, publicKey))
+        XCTAssertTrue(try Keypairs.verify(Array(Data(hex: signature)), messageBytes, publicKey))
     }
 
     func testSignED25519() throws {
@@ -106,7 +106,7 @@ final class TestApi: XCTestCase {
         let publicKey = TestApi.fixtures.ED25519_KEYPAIR.publicKey
         let message = TestApi.fixtures.ED25519_MESSAGE
         let messageHex = message.bytes
-        XCTAssertTrue(try Keypairs.verify(Data(hex: signature).bytes, messageHex, publicKey))
+        XCTAssertTrue(try Keypairs.verify(Array(Data(hex: signature)), messageHex, publicKey))
     }
 
     func _testDeriveNodeAddress() throws {

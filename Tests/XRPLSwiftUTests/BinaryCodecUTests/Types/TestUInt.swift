@@ -13,9 +13,9 @@ import XCTest
 final class TestUInt: XCTestCase {
 
     func testFromValue() {
-        let value1 = xUInt8.from(124)
-        let value2 = xUInt8.from(123)
-        let value3 = xUInt8.from(124)
+        let value1 = try! xUInt8.from(124)
+        let value2 = try! xUInt8.from(123)
+        let value3 = try! xUInt8.from(124)
 
         XCTAssertGreaterThan(value1, value2)
         XCTAssertLessThan(value2, value1)
@@ -30,7 +30,7 @@ final class TestUInt: XCTestCase {
 
     // TODO: Review these: // 8/16/32 all need .bigEndian
     func testCompare() {
-        let value1: xUInt8 = xUInt8.from(124)
+        let value1: xUInt8 = try! xUInt8.from(124)
         XCTAssertEqual(value1.value, 124)
         XCTAssertLessThan(value1.value, 125)
         XCTAssertGreaterThan(value1.value, 123)
@@ -39,9 +39,9 @@ final class TestUInt: XCTestCase {
     func testCompareDifferent() {
         let const: Int = 124
         let string: String = "000000000000007C"
-        let uint8: xUInt8 = xUInt8.from(const)
-        let uint16: xUInt16 = xUInt16.from(const)
-        let uint32: xUInt32 = xUInt32.from(const)
+        let uint8: xUInt8 = try! xUInt8.from(const)
+        let uint16: xUInt16 = try! xUInt16.from(const)
+        let uint32: xUInt32 = try! xUInt32.from(const)
         let uint64: xUInt64 = try! xUInt64.from(const)
         let uint64s: xUInt64 = try! xUInt64.from(string)
 

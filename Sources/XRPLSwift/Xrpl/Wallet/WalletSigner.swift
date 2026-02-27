@@ -73,7 +73,7 @@ public class WalletSigner: Wallet {
     ) throws -> String {
         let channelClaim = ChannelClaim(amount: try xrpToDrops(amount), channel: channelId)
         let signingData = try BinaryCodec.encodeForSigningClaim(channelClaim)
-        return try Keypairs.sign(Data(hex: signingData).bytes, wallet.privateKey).toHex
+        return try Keypairs.sign(Array(Data(hex: signingData)), wallet.privateKey).toHex
     }
 
     /**
@@ -87,8 +87,8 @@ public class WalletSigner: Wallet {
         let decodedTx: Transaction = try self.getDecodedTransaction(tx)
         let json: [String: AnyObject] = try decodedTx.toJson()
         return try! Keypairs.verify(
-            Data(hex: json["TxnSignature"] as! String).bytes,
-            Data(hex: try BinaryCodec.encodeForSigning(json)).bytes,
+            Array(Data(hex: json["TxnSignature"] as! String)),
+            Array(Data(hex: try BinaryCodec.encodeForSigning(json))),
             json["SigningPubKey"] as! String
         )
     }

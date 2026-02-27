@@ -27,5 +27,5 @@ func verifyPaymentChannelClaim(
 ) throws -> Bool {
     let channelLClaim = ChannelClaim(amount: try xrpToDrops(amount), channel: channel)
     let signingData = try BinaryCodec.encodeForSigningClaim(channelLClaim)
-    return try Keypairs.verify(Data(hex: signingData).bytes, Data(hex: signature).bytes, publicKey)
+    return try Keypairs.verify(Array(Data(hex: signingData)), Array(Data(hex: signature)), publicKey)
 }
