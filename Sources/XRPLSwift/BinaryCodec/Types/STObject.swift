@@ -92,6 +92,9 @@ struct AssociatedValue {
         if field.associatedType.self is Hash256.Type {
             return try Hash256.from(xaddressDecoded[field.name]! as! String)
         }
+        if field.associatedType.self is Hash192.Type {
+            return try Hash192.from(xaddressDecoded[field.name]! as! String)
+        }
         if field.associatedType.self is Hash160.Type {
             return try Hash160.from(xaddressDecoded[field.name]! as! String)
         }
@@ -167,6 +170,9 @@ struct AssociatedValue {
         }
         if field.associatedType.self is Hash256.Type {
             return try Hash256().fromParser(self.parser)
+        }
+        if field.associatedType.self is Hash192.Type {
+            return try Hash192().fromParser(self.parser)
         }
         if field.associatedType.self is Hash160.Type {
             return try Hash160().fromParser(self.parser)

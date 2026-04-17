@@ -17,6 +17,7 @@ let binaryTypes: [String: SerializedType.Type] = [
     "Hash": Hash.self,
     "Hash128": Hash128.self,
     "Hash160": Hash160.self,
+    "Hash192": Hash192.self,
     "Hash256": Hash256.self,
     "PathSet": xPathSet.self,
     "SerializedType": SerializedType.self,

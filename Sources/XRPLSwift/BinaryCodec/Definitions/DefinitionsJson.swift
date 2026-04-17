@@ -26,6 +26,7 @@ let serializerDefinitions = """
     "Transaction": 10001,
     "Hash160": 17,
     "PathSet": 18,
+    "Hash192": 21,
     "LedgerEntry": 10002,
     "UInt16": 1,
     "NotPresent": 0,
@@ -151,6 +152,16 @@ let serializerDefinitions = """
       "HookResult",
       {
         "nth": 18,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt8"
+      }
+    ],
+    [
+      "AssetScale",
+      {
+        "nth": 5,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -858,6 +869,16 @@ let serializerDefinitions = """
       }
     ],
     [
+      "MaximumAmount",
+      {
+        "nth": 24,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt64"
+      }
+    ],
+    [
       "EmailHash",
       {
         "nth": 1,
@@ -1205,6 +1226,16 @@ let serializerDefinitions = """
         "isSerialized": true,
         "isSigningField": true,
         "type": "Hash256"
+      }
+    ],
+    [
+      "MPTokenIssuanceID",
+      {
+        "nth": 1,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Hash192"
       }
     ],
     [
@@ -1608,6 +1639,16 @@ let serializerDefinitions = """
       }
     ],
     [
+      "MPTokenMetadata",
+      {
+        "nth": 30,
+        "isVLEncoded": true,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Blob"
+      }
+    ],
+    [
       "Account",
       {
         "nth": 1,
@@ -1701,6 +1742,16 @@ let serializerDefinitions = """
       "HookAccount",
       {
         "nth": 16,
+        "isVLEncoded": true,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "AccountID"
+      }
+    ],
+    [
+      "Holder",
+      {
+        "nth": 11,
         "isVLEncoded": true,
         "isSerialized": true,
         "isSigningField": true,
@@ -2388,6 +2439,10 @@ let serializerDefinitions = """
     "NFTokenCreateOffer": 27,
     "NFTokenCancelOffer": 28,
     "NFTokenAcceptOffer": 29,
+    "MPTokenIssuanceCreate": 54,
+    "MPTokenIssuanceDestroy": 55,
+    "MPTokenIssuanceSet": 56,
+    "MPTokenAuthorize": 57,
     "EnableAmendment": 100,
     "SetFee": 101,
     "UNLModify": 102

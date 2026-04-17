@@ -225,6 +225,9 @@ public class BinaryParser {
         if type is Hash256 {
             return Hash256().fromParser(self, nil)
         }
+        if type is Hash192 {
+            return Hash192().fromParser(self, nil)
+        }
         if type is Hash160 {
             return Hash160().fromParser(self, nil)
         }
