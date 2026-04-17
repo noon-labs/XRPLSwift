@@ -32,6 +32,10 @@ public enum Transaction: Codable {
     case nfTokenCancelOffer(NFTokenCancelOffer)
     case nfTokenCreateOffer(NFTokenCreateOffer)
     case nfTokenMint(NFTokenMint)
+    case mptokenAuthorize(MPTokenAuthorize)
+    case mptokenIssuanceCreate(MPTokenIssuanceCreate)
+    case mptokenIssuanceDestroy(MPTokenIssuanceDestroy)
+    case mptokenIssuanceSet(MPTokenIssuanceSet)
     case offerCancel(OfferCancel)
     case offerCreate(OfferCreate)
     case payment(Payment)
@@ -108,6 +112,22 @@ extension Transaction {
         }
         if transactionType == "NFTokenMint", let value = try? NFTokenMint(json: json) {
             self = .nfTokenMint(value)
+            return
+        }
+        if transactionType == "MPTokenAuthorize", let value = try? MPTokenAuthorize(json: json) {
+            self = .mptokenAuthorize(value)
+            return
+        }
+        if transactionType == "MPTokenIssuanceCreate", let value = try? MPTokenIssuanceCreate(json: json) {
+            self = .mptokenIssuanceCreate(value)
+            return
+        }
+        if transactionType == "MPTokenIssuanceDestroy", let value = try? MPTokenIssuanceDestroy(json: json) {
+            self = .mptokenIssuanceDestroy(value)
+            return
+        }
+        if transactionType == "MPTokenIssuanceSet", let value = try? MPTokenIssuanceSet(json: json) {
+            self = .mptokenIssuanceSet(value)
             return
         }
         if transactionType == "OfferCancel", let value = try? OfferCancel(json: json) {
@@ -189,6 +209,14 @@ extension Transaction {
             return value
         case .nfTokenMint(let value):
             return value
+        case .mptokenAuthorize(let value):
+            return value
+        case .mptokenIssuanceCreate(let value):
+            return value
+        case .mptokenIssuanceDestroy(let value):
+            return value
+        case .mptokenIssuanceSet(let value):
+            return value
         case .offerCancel(let value):
             return value
         case .offerCreate(let value):
@@ -264,6 +292,22 @@ extension Transaction {
             self = .nfTokenMint(value)
             return
         }
+        if tt == "MPTokenAuthorize", let value = try? MPTokenAuthorize(from: decoder) {
+            self = .mptokenAuthorize(value)
+            return
+        }
+        if tt == "MPTokenIssuanceCreate", let value = try? MPTokenIssuanceCreate(from: decoder) {
+            self = .mptokenIssuanceCreate(value)
+            return
+        }
+        if tt == "MPTokenIssuanceDestroy", let value = try? MPTokenIssuanceDestroy(from: decoder) {
+            self = .mptokenIssuanceDestroy(value)
+            return
+        }
+        if tt == "MPTokenIssuanceSet", let value = try? MPTokenIssuanceSet(from: decoder) {
+            self = .mptokenIssuanceSet(value)
+            return
+        }
         if tt == "OfferCancel", let value = try? OfferCancel(from: decoder) {
             self = .offerCancel(value)
             return
@@ -337,6 +381,14 @@ extension Transaction {
             try value.encode(to: encoder)
         case .nfTokenMint(let value):
             try value.encode(to: encoder)
+        case .mptokenAuthorize(let value):
+            try value.encode(to: encoder)
+        case .mptokenIssuanceCreate(let value):
+            try value.encode(to: encoder)
+        case .mptokenIssuanceDestroy(let value):
+            try value.encode(to: encoder)
+        case .mptokenIssuanceSet(let value):
+            try value.encode(to: encoder)
         case .offerCancel(let value):
             try value.encode(to: encoder)
         case .offerCreate(let value):
@@ -376,6 +428,10 @@ extension Transaction {
             "NFTokenCancelOffer",
             "NFTokenCreateOffer",
             "NFTokenMint",
+            "MPTokenAuthorize",
+            "MPTokenIssuanceCreate",
+            "MPTokenIssuanceDestroy",
+            "MPTokenIssuanceSet",
             "OfferCancel",
             "OfferCreate",
             "Payment",
@@ -452,6 +508,14 @@ public func validate(transaction: [String: AnyObject]) throws {
         try validateNFTokenCreateOffer(tx: tx)
     case "NFTokenMint":
         try validateNFTokenMint(tx: tx)
+    case "MPTokenAuthorize":
+        try validateMPTokenAuthorize(tx: tx)
+    case "MPTokenIssuanceCreate":
+        try validateMPTokenIssuanceCreate(tx: tx)
+    case "MPTokenIssuanceDestroy":
+        try validateMPTokenIssuanceDestroy(tx: tx)
+    case "MPTokenIssuanceSet":
+        try validateMPTokenIssuanceSet(tx: tx)
     case "OfferCancel":
         try validateOfferCancel(tx: tx)
     case "OfferCreate":
