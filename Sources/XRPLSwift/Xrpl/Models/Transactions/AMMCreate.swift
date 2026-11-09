@@ -10,6 +10,7 @@
 import Foundation
 
 /// TradingFee is in units of 1/100,000; 1000 = 1%.
+// swiftlint:disable:next identifier_name
 public let AMM_MAX_TRADING_FEE: Int = 1000
 
 /**

@@ -9,6 +9,7 @@
 
 import Foundation
 
+// swiftlint:disable:next identifier_name
 public let AMM_MAX_AUTH_ACCOUNTS: Int = 4
 
 /// `{"AuthAccount": {"Account": "r..."}}` entry of `AuthAccounts`.
