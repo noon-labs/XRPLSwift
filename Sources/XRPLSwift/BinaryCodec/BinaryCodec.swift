@@ -23,7 +23,7 @@ let TRANSACTION_MULTISIG_PREFIX = Data(Array(numToBytes(num: 0x534D5400)).revers
 /**
  Functions to encode/decode to/from the ripple binary serialization format
  */
-class BinaryCodec {
+public class BinaryCodec {
     /**
      Encode a transaction or other object into the canonical binary format.
      - parameters:
@@ -31,7 +31,7 @@ class BinaryCodec {
      - returns:
      The binary-encoded object, as a hexadecimal string.
      */
-    class func encode(_ json: [String: Any]) throws -> String {
+    public class func encode(_ json: [String: Any]) throws -> String {
         return try serializeJson(json)
     }
 
@@ -107,7 +107,7 @@ class BinaryCodec {
      - returns:
      A JSON-like dictionary representation of the transaction.
      */
-    class func decode(_ buffer: String) -> [String: AnyObject] {
+    public class func decode(_ buffer: String) -> [String: AnyObject] {
         let parser = BinaryParser(hex: buffer)
         let parsedType: SerializedType = try! parser.readType(STObject.self)
         return parsedType.toJson()

@@ -32,7 +32,8 @@ let serializerDefinitions = """
     "NotPresent": 0,
     "UInt64": 3,
     "UInt32": 2,
-    "STArray": 15
+    "STArray": 15,
+    "Issue": 24
   },
   "LEDGER_ENTRY_TYPES": {
     "Any": -3,
@@ -55,7 +56,8 @@ let serializerDefinitions = """
     "Contract": 99,
     "NFTokenPage": 80,
     "NFTokenOffer": 55,
-    "NegativeUNL": 78
+    "NegativeUNL": 78,
+    "AMM": 121
   },
   "FIELDS": [
     [
@@ -1343,8 +1345,8 @@ let serializerDefinitions = """
       {
         "nth": 11,
         "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
+        "isSerialized": false,
+        "isSigningField": false,
         "type": "Amount"
       }
     ],
@@ -2267,6 +2269,186 @@ let serializerDefinitions = """
         "isSigningField": true,
         "type": "STArray"
       }
+    ],
+    [
+      "TradingFee",
+      {
+        "nth": 5,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt16"
+      }
+    ],
+    [
+      "DiscountedFee",
+      {
+        "nth": 6,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt16"
+      }
+    ],
+    [
+      "VoteWeight",
+      {
+        "nth": 48,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "AMMID",
+      {
+        "nth": 14,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Hash256"
+      }
+    ],
+    [
+      "Amount2",
+      {
+        "nth": 11,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
+      "BidMin",
+      {
+        "nth": 12,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
+      "BidMax",
+      {
+        "nth": 13,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
+      "LPTokenOut",
+      {
+        "nth": 25,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
+      "LPTokenIn",
+      {
+        "nth": 26,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
+      "EPrice",
+      {
+        "nth": 27,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
+      "LPTokenBalance",
+      {
+        "nth": 31,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
+      "VoteEntry",
+      {
+        "nth": 25,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "STObject"
+      }
+    ],
+    [
+      "AuctionSlot",
+      {
+        "nth": 26,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "STObject"
+      }
+    ],
+    [
+      "AuthAccount",
+      {
+        "nth": 27,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "STObject"
+      }
+    ],
+    [
+      "VoteSlots",
+      {
+        "nth": 12,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "STArray"
+      }
+    ],
+    [
+      "AuthAccounts",
+      {
+        "nth": 25,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "STArray"
+      }
+    ],
+    [
+      "Asset",
+      {
+        "nth": 3,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Issue"
+      }
+    ],
+    [
+      "Asset2",
+      {
+        "nth": 4,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Issue"
+      }
     ]
   ],
   "TRANSACTION_RESULTS": {
@@ -2439,6 +2621,13 @@ let serializerDefinitions = """
     "NFTokenCreateOffer": 27,
     "NFTokenCancelOffer": 28,
     "NFTokenAcceptOffer": 29,
+    "AMMClawback": 31,
+    "AMMCreate": 35,
+    "AMMDeposit": 36,
+    "AMMWithdraw": 37,
+    "AMMVote": 38,
+    "AMMBid": 39,
+    "AMMDelete": 40,
     "MPTokenIssuanceCreate": 54,
     "MPTokenIssuanceDestroy": 55,
     "MPTokenIssuanceSet": 56,

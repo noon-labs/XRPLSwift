@@ -228,6 +228,9 @@ public class BinaryParser {
         if type is Hash192 {
             return Hash192().fromParser(self, nil)
         }
+        if type is xIssue {
+            return try xIssue().fromParser(self, nil)
+        }
         if type is Hash160 {
             return Hash160().fromParser(self, nil)
         }

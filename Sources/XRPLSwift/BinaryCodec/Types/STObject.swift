@@ -95,6 +95,12 @@ struct AssociatedValue {
         if field.associatedType.self is Hash192.Type {
             return try Hash192.from(xaddressDecoded[field.name]! as! String)
         }
+        if field.associatedType.self is xIssue.Type {
+            guard let value = xaddressDecoded[field.name] as? [String: Any] else {
+                throw BinaryError.unknownError(error: "Invalid SerializedType Issue")
+            }
+            return try xIssue.from(value)
+        }
         if field.associatedType.self is Hash160.Type {
             return try Hash160.from(xaddressDecoded[field.name]! as! String)
         }
@@ -173,6 +179,9 @@ struct AssociatedValue {
         }
         if field.associatedType.self is Hash192.Type {
             return try Hash192().fromParser(self.parser)
+        }
+        if field.associatedType.self is xIssue.Type {
+            return try xIssue().fromParser(self.parser)
         }
         if field.associatedType.self is Hash160.Type {
             return try Hash160().fromParser(self.parser)

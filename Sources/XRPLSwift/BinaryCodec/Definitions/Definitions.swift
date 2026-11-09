@@ -69,7 +69,11 @@ public struct LoadDefinitions {
                 fieldInfo.nth
             )
             self.FIELD_INFO_MAP[field.key] = fieldInfo
-            self.FIELD_HEADER_NAME_MAP[header] = field.key
+            // 직렬화되지 않는 필드(DeliverMax 같은 API 별칭, LedgerEntry/Transaction/Validation 래퍼)는 바이너리에 나오지 않으므로
+            // 헤더 → 이름 역매핑에 넣지 않는다. 넣으면 같은 (type, nth) 를 쓰는 실제 필드(Amount2 등)와 충돌한다.
+            if fieldInfo.isSerialized {
+                self.FIELD_HEADER_NAME_MAP[header] = field.key
+            }
         }
     }
 }

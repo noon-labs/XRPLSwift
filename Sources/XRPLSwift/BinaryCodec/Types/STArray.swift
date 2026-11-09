@@ -57,6 +57,12 @@ class STArray: SerializedType {
         return STArray(bytestring)
     }
 
+    /// STObject.toJson 은 값을 `toJson() -> Any` 로 꺼내므로, 이 재정의가 없으면 배열 필드(Memos·Signers·AuthAccounts)가
+    /// 디코딩 시 hex 문자열로 나온다.
+    override func toJson() -> Any {
+        return (self.toJson() as [[String: AnyObject]])
+    }
+
     override func toJson() -> [[String: AnyObject]] {
         var result: [[String: AnyObject]] = []
         let parser = BinaryParser(hex: self.str())
