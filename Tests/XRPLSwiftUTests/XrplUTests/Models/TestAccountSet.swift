@@ -39,10 +39,40 @@ final class TestAccountSet: XCTestCase {
     // The decoded response does not include the invalid SetFlag
     func testInvalidRange() {
         TestAccountSet.setUp()
-        TestAccountSet.baseTx["SetFlag"] = 12 as AnyObject
+        TestAccountSet.baseTx["SetFlag"] = 17 as AnyObject
         //        let tx = try! AccountSet(json: TestAccountSet.baseTx)
         XCTAssertThrowsError(try AccountSet(json: TestAccountSet.baseTx))
         //        XCTAssertThrowsError(try validateAccountSet(tx: tx.toJson()))
+    }
+
+    func testDisallowIncomingAndClawbackFlagsDecode() {
+        // asf 12~15 (DisallowIncoming amendment), 16 (Clawback amendment) 가 열거형에 있어야 SetFlag/ClearFlag 를 디코딩할 수 있다.
+        for (flag, expected) in [(12, AccountSetAsfFlags.asfDisallowIncomingNFTokenOffer),
+                                 (13, .asfDisallowIncomingCheck),
+                                 (14, .asfDisallowIncomingPayChan),
+                                 (15, .asfDisallowIncomingTrustline),
+                                 (16, .asfAllowTrustLineClawback)] {
+            TestAccountSet.setUp()
+            TestAccountSet.baseTx["SetFlag"] = flag as AnyObject
+            let tx = try! AccountSet(json: TestAccountSet.baseTx)
+            XCTAssertEqual(tx.setFlag, expected)
+            XCTAssertEqual(try! tx.toJson()["SetFlag"] as? Int, flag)
+        }
+    }
+
+    func testMessageKeyRoundTrips() {
+        // MessageKey 는 hex 문자열이며, 디코딩·인코딩 양쪽에 포함되어야 제출 시 누락되지 않는다.
+        TestAccountSet.setUp()
+        let tx = try! AccountSet(json: TestAccountSet.baseTx)
+        XCTAssertEqual(tx.messageKey, "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931EDB")
+        XCTAssertEqual(try! tx.toJson()["MessageKey"] as? String, "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931EDB")
+    }
+
+    func testValidTicksizePasses() {
+        TestAccountSet.setUp()
+        TestAccountSet.baseTx["TickSize"] = 5 as AnyObject
+        let tx = try! AccountSet(json: TestAccountSet.baseTx)
+        XCTAssertNoThrow(try validateAccountSet(tx: tx.toJson()))
     }
 
     func testInvalidType() {
@@ -55,7 +85,7 @@ final class TestAccountSet: XCTestCase {
 
     func testInvalidClearFlag() {
         TestAccountSet.setUp()
-        TestAccountSet.baseTx["ClearFlag"] = 12 as AnyObject
+        TestAccountSet.baseTx["ClearFlag"] = 17 as AnyObject
         //        let tx = try! AccountSet(json: TestAccountSet.baseTx)
         XCTAssertThrowsError(try AccountSet(json: TestAccountSet.baseTx))
         //        XCTAssertThrowsError(try validateAccountSet(tx: tx.toJson()))

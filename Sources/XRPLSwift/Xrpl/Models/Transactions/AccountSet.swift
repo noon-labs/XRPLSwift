@@ -79,6 +79,19 @@ public enum AccountSetAsfFlags: Int, Codable, CaseIterable {
     case asfRequireDest = 1
     /// Allow another account to mint and burn tokens on behalf of this account.
     case asfAuthorizedMinter = 10
+    /// Block incoming NFTokenOffers. (DisallowIncoming amendment)
+    case asfDisallowIncomingNFTokenOffer = 12
+    /// Block incoming Checks. (DisallowIncoming amendment)
+    case asfDisallowIncomingCheck = 13
+    /// Block incoming PaymentChannels. (DisallowIncoming amendment)
+    case asfDisallowIncomingPayChan = 14
+    /// Block incoming trust lines. (DisallowIncoming amendment)
+    case asfDisallowIncomingTrustline = 15
+    /**
+     Allow this issuer to claw back tokens it issued. Can only be enabled before the account
+     has any trust lines, and can never be disabled afterwards. (Clawback amendment)
+     */
+    case asfAllowTrustLineClawback = 16
 }
 
 enum AccountSetTfFlags: Int, Codable, CaseIterable {
@@ -150,8 +163,8 @@ public class AccountSet: BaseTransaction {
      */
     public var emailHash: String?
 
-    /// Set a public key for sending encrypted messages to this account.
-    public var messageKey: Int?
+    /// Set a public key for sending encrypted messages to this account. Hex string, as in the ledger.
+    public var messageKey: String?
 
     /**
      Set the transfer fee to use for tokens issued by this account. See
@@ -178,6 +191,7 @@ public class AccountSet: BaseTransaction {
         case setFlag = "SetFlag"
         case domain = "Domain"
         case emailHash = "EmailHash"
+        case messageKey = "MessageKey"
         case transferRate = "TransferRate"
         case tickSize = "TickSize"
         case nfTokenMinter = "NFTokenMinter"
@@ -188,7 +202,7 @@ public class AccountSet: BaseTransaction {
         setFlag: AccountSetAsfFlags?,
         domain: String?,
         emailHash: String?,
-        messageKey: Int?,
+        messageKey: String?,
         transferRate: Int?,
         tickSize: Int?,
         nfTokenMinter: String?
@@ -225,6 +239,7 @@ public class AccountSet: BaseTransaction {
         setFlag = try values.decodeIfPresent(AccountSetAsfFlags.self, forKey: .setFlag)
         domain = try values.decodeIfPresent(String.self, forKey: .domain)
         emailHash = try values.decodeIfPresent(String.self, forKey: .emailHash)
+        messageKey = try values.decodeIfPresent(String.self, forKey: .messageKey)
         transferRate = try values.decodeIfPresent(Int.self, forKey: .transferRate)
         tickSize = try values.decodeIfPresent(Int.self, forKey: .tickSize)
         nfTokenMinter = try values.decodeIfPresent(String.self, forKey: .nfTokenMinter)
@@ -238,6 +253,7 @@ public class AccountSet: BaseTransaction {
         if let setFlag = setFlag { try values.encode(setFlag.rawValue, forKey: .setFlag) }
         if let domain = domain { try values.encode(domain, forKey: .domain) }
         if let emailHash = emailHash { try values.encode(emailHash, forKey: .emailHash) }
+        if let messageKey = messageKey { try values.encode(messageKey, forKey: .messageKey) }
         if let transferRate = transferRate { try values.encode(transferRate, forKey: .transferRate) }
         if let tickSize = tickSize { try values.encode(tickSize, forKey: .tickSize) }
         if let nfTokenMinter = nfTokenMinter { try values.encode(nfTokenMinter, forKey: .nfTokenMinter) }
@@ -285,9 +301,11 @@ public func validateAccountSet(tx: [String: AnyObject]) throws {
     }
 
     if tx["TickSize"] != nil {
-        guard let tickSize = tx["TickSize"] as? Int, tickSize != 0, tickSize < _MIN_TICK_SIZE || tickSize > _MAX_TICK_SIZE else {
+        guard let tickSize = tx["TickSize"] as? Int else {
             throw ValidationError("AccountSet: invalid TickSize")
         }
-        throw ValidationError("AccountSet: invalid Tick_MAX_TICK_SIZESize")
+        if tickSize != 0 && (tickSize < _MIN_TICK_SIZE || tickSize > _MAX_TICK_SIZE) {
+            throw ValidationError("AccountSet: invalid TickSize")
+        }
     }
 }
