@@ -20,6 +20,13 @@ protocol XrplTransaction {
 public enum Transaction: Codable {
     case accountDelete(AccountDelete)
     case accountSet(AccountSet)
+    case ammBid(AMMBid)
+    case ammClawback(AMMClawback)
+    case ammCreate(AMMCreate)
+    case ammDelete(AMMDelete)
+    case ammDeposit(AMMDeposit)
+    case ammVote(AMMVote)
+    case ammWithdraw(AMMWithdraw)
     case checkCancel(CheckCancel)
     case checkCash(CheckCash)
     case checkCreate(CheckCreate)
@@ -72,6 +79,34 @@ extension Transaction {
         }
         if transactionType == "AccountSet", let value = try? AccountSet(json: json) {
             self = .accountSet(value)
+            return
+        }
+        if transactionType == "AMMBid", let value = try? AMMBid(json: json) {
+            self = .ammBid(value)
+            return
+        }
+        if transactionType == "AMMClawback", let value = try? AMMClawback(json: json) {
+            self = .ammClawback(value)
+            return
+        }
+        if transactionType == "AMMCreate", let value = try? AMMCreate(json: json) {
+            self = .ammCreate(value)
+            return
+        }
+        if transactionType == "AMMDelete", let value = try? AMMDelete(json: json) {
+            self = .ammDelete(value)
+            return
+        }
+        if transactionType == "AMMDeposit", let value = try? AMMDeposit(json: json) {
+            self = .ammDeposit(value)
+            return
+        }
+        if transactionType == "AMMVote", let value = try? AMMVote(json: json) {
+            self = .ammVote(value)
+            return
+        }
+        if transactionType == "AMMWithdraw", let value = try? AMMWithdraw(json: json) {
+            self = .ammWithdraw(value)
             return
         }
         if transactionType == "CheckCancel", let value = try? CheckCancel(json: json) {
@@ -185,6 +220,20 @@ extension Transaction {
             return value
         case .accountSet(let value):
             return value
+        case .ammBid(let value):
+            return value
+        case .ammClawback(let value):
+            return value
+        case .ammCreate(let value):
+            return value
+        case .ammDelete(let value):
+            return value
+        case .ammDeposit(let value):
+            return value
+        case .ammVote(let value):
+            return value
+        case .ammWithdraw(let value):
+            return value
         case .checkCancel(let value):
             return value
         case .checkCreate(let value):
@@ -250,6 +299,34 @@ extension Transaction {
         }
         if tt == "AccountSet", let value = try? AccountSet(from: decoder) {
             self = .accountSet(value)
+            return
+        }
+        if tt == "AMMBid", let value = try? AMMBid(from: decoder) {
+            self = .ammBid(value)
+            return
+        }
+        if tt == "AMMClawback", let value = try? AMMClawback(from: decoder) {
+            self = .ammClawback(value)
+            return
+        }
+        if tt == "AMMCreate", let value = try? AMMCreate(from: decoder) {
+            self = .ammCreate(value)
+            return
+        }
+        if tt == "AMMDelete", let value = try? AMMDelete(from: decoder) {
+            self = .ammDelete(value)
+            return
+        }
+        if tt == "AMMDeposit", let value = try? AMMDeposit(from: decoder) {
+            self = .ammDeposit(value)
+            return
+        }
+        if tt == "AMMVote", let value = try? AMMVote(from: decoder) {
+            self = .ammVote(value)
+            return
+        }
+        if tt == "AMMWithdraw", let value = try? AMMWithdraw(from: decoder) {
+            self = .ammWithdraw(value)
             return
         }
         if tt == "CheckCancel", let value = try? CheckCancel(from: decoder) {
@@ -357,6 +434,20 @@ extension Transaction {
             try value.encode(to: encoder)
         case .accountSet(let value):
             try value.encode(to: encoder)
+        case .ammBid(let value):
+            try value.encode(to: encoder)
+        case .ammClawback(let value):
+            try value.encode(to: encoder)
+        case .ammCreate(let value):
+            try value.encode(to: encoder)
+        case .ammDelete(let value):
+            try value.encode(to: encoder)
+        case .ammDeposit(let value):
+            try value.encode(to: encoder)
+        case .ammVote(let value):
+            try value.encode(to: encoder)
+        case .ammWithdraw(let value):
+            try value.encode(to: encoder)
         case .checkCancel(let value):
             try value.encode(to: encoder)
         case .checkCreate(let value):
@@ -416,6 +507,13 @@ extension Transaction {
         return [
             "AccountDelete",
             "AccountSet",
+            "AMMBid",
+            "AMMClawback",
+            "AMMCreate",
+            "AMMDelete",
+            "AMMDeposit",
+            "AMMVote",
+            "AMMWithdraw",
             "CheckCancel",
             "CheckCash",
             "CheckCreate",
@@ -484,6 +582,20 @@ public func validate(transaction: [String: AnyObject]) throws {
         try validateAccountDelete(tx: tx)
     case "AccountSet":
         try validateAccountSet(tx: tx)
+    case "AMMBid":
+        try validateAMMBid(tx: tx)
+    case "AMMClawback":
+        try validateAMMClawback(tx: tx)
+    case "AMMCreate":
+        try validateAMMCreate(tx: tx)
+    case "AMMDelete":
+        try validateAMMDelete(tx: tx)
+    case "AMMDeposit":
+        try validateAMMDeposit(tx: tx)
+    case "AMMVote":
+        try validateAMMVote(tx: tx)
+    case "AMMWithdraw":
+        try validateAMMWithdraw(tx: tx)
     case "CheckCancel":
         try validateCheckCancel(tx: tx)
     case "CheckCash":
