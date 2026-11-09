@@ -12,19 +12,20 @@ import Foundation
 public let AMM_MAX_AUTH_ACCOUNTS: Int = 4
 
 /// `{"AuthAccount": {"Account": "r..."}}` entry of `AuthAccounts`.
-public struct AuthAccountWrapper: Codable, Equatable {
-    public var authAccount: AuthAccount
+/// Named AMMAuthAccount (not AuthAccount) so it does not collide with app-side models of the same name.
+public struct AMMAuthAccountWrapper: Codable, Equatable {
+    public var authAccount: AMMAuthAccount
 
     enum CodingKeys: String, CodingKey {
         case authAccount = "AuthAccount"
     }
 
     public init(account: String) {
-        self.authAccount = AuthAccount(account: account)
+        self.authAccount = AMMAuthAccount(account: account)
     }
 }
 
-public struct AuthAccount: Codable, Equatable {
+public struct AMMAuthAccount: Codable, Equatable {
     public var account: String
 
     enum CodingKeys: String, CodingKey {
@@ -44,9 +45,9 @@ public struct AuthAccount: Codable, Equatable {
 public class AMMBid: BaseTransaction {
     public var asset: Issue
     public var asset2: Issue
-    public var bidMin: IssuedCurrencyAmount?
-    public var bidMax: IssuedCurrencyAmount?
-    public var authAccounts: [AuthAccountWrapper]?
+    public var bidMin: Amount?
+    public var bidMax: Amount?
+    public var authAccounts: [AMMAuthAccountWrapper]?
 
     enum CodingKeys: String, CodingKey {
         case asset = "Asset"
@@ -60,9 +61,9 @@ public class AMMBid: BaseTransaction {
         account: String,
         asset: Issue,
         asset2: Issue,
-        bidMin: IssuedCurrencyAmount? = nil,
-        bidMax: IssuedCurrencyAmount? = nil,
-        authAccounts: [AuthAccountWrapper]? = nil
+        bidMin: Amount? = nil,
+        bidMax: Amount? = nil,
+        authAccounts: [AMMAuthAccountWrapper]? = nil
     ) {
         self.asset = asset
         self.asset2 = asset2
@@ -88,9 +89,9 @@ public class AMMBid: BaseTransaction {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         asset = try values.decode(Issue.self, forKey: .asset)
         asset2 = try values.decode(Issue.self, forKey: .asset2)
-        bidMin = try values.decodeIfPresent(IssuedCurrencyAmount.self, forKey: .bidMin)
-        bidMax = try values.decodeIfPresent(IssuedCurrencyAmount.self, forKey: .bidMax)
-        authAccounts = try values.decodeIfPresent([AuthAccountWrapper].self, forKey: .authAccounts)
+        bidMin = try values.decodeIfPresent(Amount.self, forKey: .bidMin)
+        bidMax = try values.decodeIfPresent(Amount.self, forKey: .bidMax)
+        authAccounts = try values.decodeIfPresent([AMMAuthAccountWrapper].self, forKey: .authAccounts)
         try super.init(from: decoder)
     }
 
@@ -113,10 +114,10 @@ public func validateAMMBid(tx: [String: AnyObject]) throws {
     guard let asset2 = tx["Asset2"], isIssue(asset2) else {
         throw ValidationError("AMMBid: invalid or missing Asset2")
     }
-    if let value = tx["BidMin"], !isIssuedCurrency(input: value) {
+    if let value = tx["BidMin"], !isAmount(amount: value) {
         throw ValidationError("AMMBid: invalid BidMin")
     }
-    if let value = tx["BidMax"], !isIssuedCurrency(input: value) {
+    if let value = tx["BidMax"], !isAmount(amount: value) {
         throw ValidationError("AMMBid: invalid BidMax")
     }
     if let authAccounts = tx["AuthAccounts"] {
