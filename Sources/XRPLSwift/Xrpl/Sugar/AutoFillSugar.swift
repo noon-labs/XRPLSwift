@@ -143,17 +143,27 @@ public class AutoFillSugar {
         tx["Sequence"] = response!.result?.accountData.sequence as AnyObject
     }
 
+    /**
+     Owner reserve increment in drops (`reserve_inc_xrp` of the validated ledger, from `server_info`).
+     AccountDelete and AMMCreate must destroy at least this much XRP as their transaction cost.
+     https://xrpl.org/docs/concepts/transactions/transaction-cost#special-transaction-costs
+     */
+    func fetchOwnerReserveFee(_ client: XrplClient) async throws -> Double {
+        let request = try ServerInfoRequest(["command": "server_info"] as [String: AnyObject])
+        guard let response = try await client.request(request).get() as? BaseResponse<ServerInfoResponse>,
+              let reserveIncXrp = response.result?.info.validatedLedger?.reserveIncXrp,
+              reserveIncXrp > 0 else {
+            throw XrplError("Could not fetch Owner Reserve.")
+        }
+        // XRP (Double) -> drops. xrpToDrops only takes Decimal/String, and the value has at most 6 decimals.
+        return (reserveIncXrp * 1_000_000).rounded()
+    }
+
+    /// AccountDelete keeps its previous fallback (2 XRP) when the reserve cannot be fetched.
+    /// Previously this decoded a `server_state` response with the `server_info` model, which never matched,
+    /// so the fallback was always used.
     func fetchAccountDeleteFee(_ client: XrplClient) async -> Double {
-        let request = ServerStateRequest()
-        guard let response = try? await client.request(request).get() as? BaseResponse<ServerStateResponse> else {
-            return 2 * 1000000
-        }
-        
-        let fee = response.result?.state.validatedLedger?.reserveIncXrp
-        if fee == nil {
-            return 2 * 1000000
-        }
-        return Double(fee!)
+        return (try? await fetchOwnerReserveFee(client)) ?? 2 * 1000000
     }
 
     func calculateFeePerTransactionType(
@@ -179,6 +189,12 @@ public class AutoFillSugar {
             baseFee = await fetchAccountDeleteFee(client)
         }
 
+        // AMMCreate Transaction: special cost of one owner reserve increment, like AccountDelete.
+        // No fallback here — overpaying burns XRP, so fail instead of guessing.
+        if tx["TransactionType"] as! String == "AMMCreate" {
+            baseFee = try await fetchOwnerReserveFee(client)
+        }
+
         /*
          * Multi-signed Transaction
          * 10 drops × (1 + Number of Signatures Provided)
@@ -188,7 +204,9 @@ public class AutoFillSugar {
         }
 
         let maxFeeDrops = try xrpToDrops(client.maxFeeXRP)
-        let totalFee = tx["TransactionType"] as! String == "AccountDelete" ? baseFee : min(baseFee!, Double(maxFeeDrops)!)
+        // Special-cost transactions are not capped by maxFeeXRP (same as xrpl.js).
+        let isSpecialTxCost = ["AccountDelete", "AMMCreate"].contains(tx["TransactionType"] as! String)
+        let totalFee = isSpecialTxCost ? baseFee : min(baseFee!, Double(maxFeeDrops)!)
         //        Round up baseFee and return it as a string
         tx["Fee"] = String(Int(ceil(totalFee!))) as AnyObject
     }
