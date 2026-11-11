@@ -463,7 +463,10 @@ public class Wallet {
         try txCopy.forEach { (key: String, _: AnyObject) in
             let standardCurrencyCodeLen = 3
             if txCopy[key] != nil && isIssuedCurrency(input: txCopy[key]!) {
-                let decodedAmount: Any = try xAmount.from(decoded[key] as! [String: String]).toJson()
+                // Fields that are not serialized (API aliases such as DeliverMax) are absent from `decoded`.
+                // Nothing to compare for them; a force cast here crashed when signing a tx that still carried one.
+                guard let decodedValue = decoded[key] as? [String: String] else { return }
+                let decodedAmount: Any = try xAmount.from(decodedValue).toJson()
                 var decodedIC = try IssuedCurrencyAmount(decodedAmount as! [String: AnyObject])
                 let decodedCurrency = decodedIC.currency
                 let txCurrency = try IssuedCurrencyAmount(txCopy[key] as! [String: AnyObject]).currency
