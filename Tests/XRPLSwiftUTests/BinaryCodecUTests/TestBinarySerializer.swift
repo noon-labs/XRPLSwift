@@ -20,7 +20,7 @@ final class TestBinarySerializer: XCTestCase {
             XCTAssertEqual(blob.bytes.count, _case)
 
             let binarySerializer = BinarySerializer()
-            binarySerializer.writeLengthEncoded(blob)
+            try! binarySerializer.writeLengthEncoded(blob)
             let binaryParser = BinaryParser(hex: binarySerializer.sink.toBytes().toHex)
             let decodedLength = try! binaryParser.readLengthPrefix()
             XCTAssertEqual(_case, decodedLength)

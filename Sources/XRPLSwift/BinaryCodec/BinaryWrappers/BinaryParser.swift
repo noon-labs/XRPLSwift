@@ -14,6 +14,19 @@ public enum BinaryError: Error {
     case unknownError(error: String)
 }
 
+extension BinaryError: LocalizedError {
+    /// Without this, `localizedDescription` is "The operation couldn’t be completed. (… error 1.)" and the reason
+    /// is lost by the time it reaches the caller (e.g. a dApp that sent a malformed tx_json).
+    public var errorDescription: String? {
+        switch self {
+        case .notImplemented:
+            return "Not implemented"
+        case .unknownError(let error):
+            return error
+        }
+    }
+}
+
 /**
  Deserializes from hex-encoded XRPL binary format to JSON fields and values.
  */
@@ -63,9 +76,12 @@ public class BinaryParser {
      */
     // swiftlint:disable:next identifier_name
     public func read(_ n: Int) throws -> [UInt8] {
-        let slice = bytes[0..<n]
-        try? skip(n)
-        return [UInt8](slice)
+        guard n >= 0 && n <= bytes.count else {
+            throw BinaryError.unknownError(error: "Invalid Bytes Length")
+        }
+        let slice = [UInt8](bytes[0..<n])
+        try skip(n)
+        return slice
     }
 
     /**
@@ -160,7 +176,7 @@ public class BinaryParser {
             let byte3 = Int(try self.readUInt8())
             return 12481 + (byte1 - 241) * 65536 + byte2 * 256 + byte3
         }
-        fatalError("Invalid variable length indicator")
+        throw BinaryError.unknownError(error: "Invalid variable length indicator")
     }
 
     /**
@@ -211,57 +227,57 @@ public class BinaryParser {
      */
     func readType(_ type: Any) throws -> SerializedType {
         if type is AccountID {
-            return AccountID().fromParser(self, nil)
+            return try AccountID().fromParser(self, nil)
         }
         if type is xAmount {
             return try xAmount().fromParser(self, nil)
         }
         if type is Blob {
-            return Blob().fromParser(self, nil)
+            return try Blob().fromParser(self, nil)
         }
         if type is xCurrency {
-            return xCurrency().fromParser(self, nil)
+            return try xCurrency().fromParser(self, nil)
         }
         if type is Hash256 {
-            return Hash256().fromParser(self, nil)
+            return try Hash256().fromParser(self, nil)
         }
         if type is Hash192 {
-            return Hash192().fromParser(self, nil)
+            return try Hash192().fromParser(self, nil)
         }
         if type is xIssue {
             return try xIssue().fromParser(self, nil)
         }
         if type is Hash160 {
-            return Hash160().fromParser(self, nil)
+            return try Hash160().fromParser(self, nil)
         }
         if type is Hash128 {
-            return Hash128().fromParser(self, nil)
+            return try Hash128().fromParser(self, nil)
         }
         if type is Hash {
-            return Hash().fromParser(self, nil)
+            return try Hash().fromParser(self, nil)
         }
         if type is STArray {
-            return STArray().fromParser(self, nil)
+            return try STArray().fromParser(self, nil)
         }
         if type is STObject.Type {
-            return STObject().fromParser(self, nil)
+            return try STObject().fromParser(self, nil)
         }
         if type is xUInt64.Type {
-            return xUInt64().fromParser(self, nil)
+            return try xUInt64().fromParser(self, nil)
         }
         if type is xUInt32.Type {
-            return xUInt32().fromParser(self, nil)
+            return try xUInt32().fromParser(self, nil)
         }
         if type is xUInt16.Type {
-            return xUInt16().fromParser(self, nil)
+            return try xUInt16().fromParser(self, nil)
         }
         if type is xUInt8.Type {
-            return xUInt8().fromParser(self, nil)
+            return try xUInt8().fromParser(self, nil)
         }
         if type is Vector256.Type {
-            return Vector256().fromParser(self, nil)
+            return try Vector256().fromParser(self, nil)
         }
-        fatalError("Invalid Serialized Type")
+        throw BinaryError.unknownError(error: "Invalid Serialized Type")
     }
 
     /**
@@ -282,10 +298,15 @@ public class BinaryParser {
      - returns:
      The value associated with the given field
      */
-    func readFieldValue(_ field: FieldInstance) throws -> SerializedType? {
+    func readFieldValue(_ field: FieldInstance) throws -> SerializedType {
         let associatedValue = AssociatedValue(field: field, parser: self)
         let sizeHint: Int? = field.isVLEncoded ? try self.readLengthPrefix() : nil
-        guard let value = try associatedValue.fromParser(hint: sizeHint), !value.bytes.isEmpty else {
+        guard let value = try associatedValue.fromParser(hint: sizeHint) else {
+            throw BinaryError.unknownError(error: "fromParser for (\(field.name), \(field.type) -> nil ")
+        }
+        // A length-prefixed field may legitimately be empty: `"Domain": ""` is how AccountSet clears the domain,
+        // and a multisigned transaction carries `"SigningPubKey": ""`. Only fixed-size types must have bytes.
+        guard field.isVLEncoded || !value.bytes.isEmpty else {
             throw BinaryError.unknownError(error: "fromParser for (\(field.name), \(field.type) -> nil ")
         }
         return value
@@ -296,7 +317,7 @@ public class BinaryParser {
      - returns:
      The field and value
      */
-    func readFieldAndValue() throws -> (FieldInstance, SerializedType?) {
+    func readFieldAndValue() throws -> (FieldInstance, SerializedType) {
         let field = try readField()
         return (field, try readFieldValue(field))
     }

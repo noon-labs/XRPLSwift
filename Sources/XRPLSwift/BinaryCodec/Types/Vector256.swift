@@ -37,7 +37,7 @@ class Vector256: SerializedType {
     override func fromParser(
         _ parser: BinaryParser,
         _ hint: Int? = nil
-    ) -> SerializedType {
+    ) throws -> SerializedType {
         var byteList: [UInt8] = []
         let numBytes = hint != nil ? hint : parser.bytes.count
         let numHashes = Int(numBytes! / HASH_LENGTH_BYTES)
@@ -55,9 +55,9 @@ class Vector256: SerializedType {
      XRPLBinaryCodecException: If the number of bytes in the buffer
      is not a multiple of the hash length.
      */
-    override func toJson() -> [String] {
+    override func toJson() throws -> [String] {
         if self.bytes.count % HASH_LENGTH_BYTES != 0 {
-            fatalError("Invalid bytes for Vector256.")
+            throw BinaryError.unknownError(error: "Invalid bytes for Vector256.")
             //            throw BinaryError.unknownError(error: "Invalid bytes for Vector256.")
         }
 
@@ -69,8 +69,8 @@ class Vector256: SerializedType {
         return hashList
     }
     
-    override func toJson() -> Any {
-        let stringArray: [String] = toJson()
+    override func toJson() throws -> Any {
+        let stringArray: [String] = try toJson()
         return stringArray
     }
 }

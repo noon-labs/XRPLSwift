@@ -27,7 +27,7 @@ class xUInt: SerializedType {
      Returns:
      The JSON representation of the UInt object.
      */
-    override func toJson() -> Any {
+    override func toJson() throws -> Any {
         if self.value is Int {
             return Int(self.value)
         }

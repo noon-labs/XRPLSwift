@@ -211,8 +211,11 @@ public struct Definitions {
      Returns:
      An integer representing the given transaction type string in an enum.
      */
-    func getTransactionTypeCode(_ transactionType: String) -> Int {
-        return definitions.TRANSACTION_TYPES[transactionType]!
+    func getTransactionTypeCode(_ transactionType: String) throws -> Int {
+        guard let value = definitions.TRANSACTION_TYPES[transactionType] else {
+            throw BinaryCodecErrors.unknownError("Unknown transaction type: \(transactionType)")
+        }
+        return value
     }
 
     /*
@@ -222,8 +225,11 @@ public struct Definitions {
      Returns:
      The string name of the transaction type.
      */
-    func getTransactionTypeName(_ transactionType: Int) -> String {
-        return definitions.TRANSACTION_TYPES_REVERSE[transactionType]!
+    func getTransactionTypeName(_ transactionType: Int) throws -> String {
+        guard let value = definitions.TRANSACTION_TYPES_REVERSE[transactionType] else {
+            throw BinaryCodecErrors.unknownError("Unknown transaction type code: \(transactionType)")
+        }
+        return value
     }
 
     /*
@@ -234,8 +240,11 @@ public struct Definitions {
      Returns:
      An integer representing the given transaction result type string in an enum.
      */
-    func getTransactionResultCode(_ transactionResultType: String) -> Int {
-        return definitions.TRANSACTION_RESULTS[transactionResultType]!
+    func getTransactionResultCode(_ transactionResultType: String) throws -> Int {
+        guard let value = definitions.TRANSACTION_RESULTS[transactionResultType] else {
+            throw BinaryCodecErrors.unknownError("Unknown transaction result: \(transactionResultType)")
+        }
+        return value
     }
 
     /*
@@ -245,8 +254,11 @@ public struct Definitions {
      Returns:
      The string name of the transaction result type.
      */
-    func getTransactionResultName(_ transactionResultType: Int) -> String {
-        return definitions.TRANSACTION_RESULTS_REVERSE[transactionResultType]!
+    func getTransactionResultName(_ transactionResultType: Int) throws -> String {
+        guard let value = definitions.TRANSACTION_RESULTS_REVERSE[transactionResultType] else {
+            throw BinaryCodecErrors.unknownError("Unknown transaction result code: \(transactionResultType)")
+        }
+        return value
     }
 
     /*
@@ -256,8 +268,11 @@ public struct Definitions {
      Returns:
      An integer representing the given ledger entry type string in an enum.
      */
-    func getLedgerEntryTypeCode(_ ledgerEntryType: String) -> Int {
-        return definitions.LEDGER_ENTRY_TYPES[ledgerEntryType]!
+    func getLedgerEntryTypeCode(_ ledgerEntryType: String) throws -> Int {
+        guard let value = definitions.LEDGER_ENTRY_TYPES[ledgerEntryType] else {
+            throw BinaryCodecErrors.unknownError("Unknown ledger entry type: \(ledgerEntryType)")
+        }
+        return value
     }
 
     /*
@@ -267,7 +282,10 @@ public struct Definitions {
      Returns:
      The string name of the ledger entry type.
      */
-    func getLedgerEntryTypeName(_ ledgerEntryType: Int) -> String {
-        return definitions.LEDGER_ENTRY_TYPES_REVERSE[ledgerEntryType]!
+    func getLedgerEntryTypeName(_ ledgerEntryType: Int) throws -> String {
+        guard let value = definitions.LEDGER_ENTRY_TYPES_REVERSE[ledgerEntryType] else {
+            throw BinaryCodecErrors.unknownError("Unknown ledger entry type code: \(ledgerEntryType)")
+        }
+        return value
     }
 }

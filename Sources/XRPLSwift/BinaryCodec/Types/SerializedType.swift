@@ -66,7 +66,7 @@ class SerializedType {
         return bytes
     }
 
-    func toJson() -> [String] {
+    func toJson() throws -> [String] {
         /*
          Returns the JSON representation of a SerializedType.
          If not overridden, returns hex string representation of bytes.
@@ -76,7 +76,7 @@ class SerializedType {
         return []
     }
 
-    func toJson() -> [[[String: AnyObject]]] {
+    func toJson() throws -> [[[String: AnyObject]]] {
         /*
          Returns the JSON representation of a SerializedType.
          If not overridden, returns hex string representation of bytes.
@@ -86,7 +86,7 @@ class SerializedType {
         return []
     }
 
-    func toJson() -> [[String: AnyObject]] {
+    func toJson() throws -> [[String: AnyObject]] {
         /*
          Returns the JSON representation of a SerializedType.
          If not overridden, returns hex string representation of bytes.
@@ -96,7 +96,7 @@ class SerializedType {
         return []
     }
 
-    func toJson() -> [String: AnyObject] {
+    func toJson() throws -> [String: AnyObject] {
         /*
          Returns the JSON representation of a SerializedType.
          If not overridden, returns hex string representation of bytes.
@@ -106,7 +106,7 @@ class SerializedType {
         return [:]
     }
 
-    func toJson() -> Any {
+    func toJson() throws -> Any {
         /*
          Returns the JSON representation of a SerializedType.
          If not overridden, returns hex string representation of bytes.
@@ -116,7 +116,7 @@ class SerializedType {
         return toHex()
     }
 
-    func toJson() -> String {
+    func toJson() throws -> String {
         /*
          Returns the JSON representation of a SerializedType.
          If not overridden, returns hex string representation of bytes.

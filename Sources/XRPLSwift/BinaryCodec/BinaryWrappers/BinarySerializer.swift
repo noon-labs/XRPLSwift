@@ -103,8 +103,8 @@ public class BinarySerializer {
      - type: The type to write
      - value: A value of that type
      */
-    func writeType(_ type: SerializedType, _ value: SerializedType) {
-        self.write(try! SerializedType.from(value))
+    func writeType(_ type: SerializedType, _ value: SerializedType) throws {
+        self.write(try SerializedType.from(value))
     }
     /**
      Write BytesList to this BinarySerializer
@@ -127,7 +127,7 @@ public class BinarySerializer {
      - returns:
      The byte arrary encoded length
      */
-    func encodeVariableLength(_ length: Int) -> Data {
+    func encodeVariableLength(_ length: Int) throws -> Data {
         var len = length
         if length <= _MAX_SINGLE_BYTE_LENGTH {
             return Data(from: UInt8(length))
@@ -143,7 +143,7 @@ public class BinarySerializer {
             let byte3 = UInt8(len & 0xff)
             return Data(fromArray: [byte1, byte2, byte3])
         }
-        fatalError("VariableLength field must be <= \(_MAX_LENGTH_VALUE) bytes long")
+        throw BinaryError.unknownError(error: "VariableLength field must be <= \(_MAX_LENGTH_VALUE) bytes long")
         //        throw BinaryError.unknownError(error: "VariableLength field must be <= \(_MAX_LENGTH_VALUE) bytes long")
     }
     /**
@@ -155,12 +155,12 @@ public class BinarySerializer {
     func writeLengthEncoded(
         _ value: SerializedType,
         _ isUnlModifyWorkaround: Bool = false
-    ) {
+    ) throws {
         let byteObject = BytesList()
         if !isUnlModifyWorkaround {
             _ = value.toBytesSink(byteObject)
         }
-        self.put(encodeVariableLength(byteObject.getLength()))
+        self.put(try encodeVariableLength(byteObject.getLength()))
         self.writeBytesList(byteObject)
     }
     /**
@@ -176,10 +176,10 @@ public class BinarySerializer {
         _ field: FieldInstance,
         _ value: SerializedType,
         _ isUNLModifyWorkaround: Bool = false
-    ) {
+    ) throws {
         self.put(Data(field.header.toBytes()))
         if field.isVLEncoded {
-            writeLengthEncoded(value, isUNLModifyWorkaround)
+            try writeLengthEncoded(value, isUNLModifyWorkaround)
         } else {
             self.put(Data(value.bytes))
         }

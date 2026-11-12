@@ -169,7 +169,7 @@ public class WalletSigner: Wallet {
     }
 
     public static func getDecodedTransaction(_ tx: String) throws -> Transaction {
-        let decoded: [String: AnyObject] = BinaryCodec.decode(tx)
+        let decoded: [String: AnyObject] = try BinaryCodec.decode(tx)
         guard let tx = try Transaction(decoded) else {
             throw UnexpectedError("WalletSigner decode tx error")
         }
@@ -177,8 +177,8 @@ public class WalletSigner: Wallet {
     }
 
     public static func getDecodedTransaction(_ tx: Transaction) throws -> Transaction {
-        let encoded = try! BinaryCodec.encode(tx.toJson())
-        let decoded: [String: AnyObject] = BinaryCodec.decode(encoded)
+        let encoded = try BinaryCodec.encode(tx.toJson())
+        let decoded: [String: AnyObject] = try BinaryCodec.decode(encoded)
         guard let tx = try Transaction(decoded) else {
             throw UnexpectedError("WalletSigner decode tx error")
         }

@@ -373,7 +373,7 @@ final class TestWalletSign: XCTestCase {
     func testInvalidAlreadySigned() {
         let tx: Transaction = try! Transaction(RequestFixtures.sign())!
         let result = try! wallet.sign(tx, false)
-        let cloneTx: [String: AnyObject] = BinaryCodec.decode(result.txBlob)
+        let cloneTx: [String: AnyObject] = try! BinaryCodec.decode(result.txBlob)
         let nextTx = try! Transaction(cloneTx)
         XCTAssertThrowsError(try wallet.sign(nextTx!))
     }
@@ -396,7 +396,7 @@ final class TestWalletSign: XCTestCase {
             "Fee": "12"
         ] as! [String: AnyObject])!
         let result = try! wallet.sign(tx)
-        let decoded: [String: Any] = BinaryCodec.decode(result.txBlob)
+        let decoded: [String: Any] = try! BinaryCodec.decode(result.txBlob)
         XCTAssert(decoded["Flags"] == nil)
         XCTAssertEqual(result.txBlob, "1200002400000001614000000001312D0068400000000000000C732102A8A44DB3D4C73EEEE11DFE54D2029103B776AA8A8D293A91D645977C9DF5F5447446304402201C0A74EE8ECF5ED83734D7171FB65C01D90D67040DEDCC66414BD546CE302B5802205356843841BFFF60D15F5F5F9FB0AB9D66591778140AB2D137FF576D9DEC44BC8114EE3046A5DDF8422C40DDB93F1D522BB4FE6419158314FDB08D07AAA0EB711793A3027304D688E10C3648")
         XCTAssertEqual(result.hash, "E22186AE9FE477821BF361358174C2B0AC2D3289AA6F7E8C1102B3D270C41204")
@@ -429,7 +429,7 @@ final class TestWalletSign: XCTestCase {
             "Fee": "12"
         ] as! [String: AnyObject])!
         let result = try! wallet.sign(tx)
-        let decoded: [String: Any] = BinaryCodec.decode(result.txBlob)
+        let decoded: [String: Any] = try! BinaryCodec.decode(result.txBlob)
         let flags = (decoded["Flags"] as! xUInt32).str()
         // TODO: Notice how you have to go str -> Int w/ radix
         // Need to review what exactly is supposed to be returned is it the hex, or the value or the object

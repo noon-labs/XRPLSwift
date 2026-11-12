@@ -83,13 +83,13 @@ func verifyIouValue(_ issuedCurrencyValue: String) throws {
      Raises:
      XRPLBinaryCodecException: If issued_currency_value is invalid.
      */
-    let decimalValue = Decimal(string: issuedCurrencyValue)!
+    let decimalValue = try decimal(fromIouValue: issuedCurrencyValue)
     if decimalValue.isZero {
         return
     }
     let exponent = decimalValue.exponent
     if
-        (calculatePrecision(issuedCurrencyValue) > MAX_IOU_PRECISION)
+        (try calculatePrecision(issuedCurrencyValue) > MAX_IOU_PRECISION)
             || (exponent > MAX_IOU_EXPONENT)
             || (exponent < MIN_IOU_EXPONENT) {
         throw BinaryError.unknownError(error: "Decimal precision out of range for issued currency value.")
@@ -97,13 +97,26 @@ func verifyIouValue(_ issuedCurrencyValue: String) throws {
     try verifyNoDecimal(decimalValue)
 }
 
-func calculatePrecision(_ value: String) -> Int {
-    // Calculate the precision of given value as a string.
-    let decimalValue = Decimal(string: value)!
-    if decimalValue.exponent == decimalValue.asInt {
-        return decimalValue.digits().count
+/// Parses the "value" of an issued currency amount.
+/// `Decimal(string:)` alone accepts a numeric prefix ("12abc" parses as 12) and returns nil for garbage, so the
+/// format is checked first: optional sign, digits with an optional fraction, optional exponent.
+func decimal(fromIouValue value: String) throws -> Decimal {
+    let pattern = #"^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?$"#
+    // Surrounding whitespace was tolerated before (and is by xrpl.js); keep accepting it.
+    let trimmed = value.trimmingCharacters(in: .whitespaces)
+    guard
+        trimmed.range(of: pattern, options: .regularExpression) != nil,
+        let decimalValue = Decimal(string: trimmed),
+        !decimalValue.isNaN
+    else {
+        throw BinaryError.unknownError(error: "\(value) is an invalid issued currency value.")
     }
-    return decimalValue.digits().count
+    return decimalValue
+}
+
+func calculatePrecision(_ value: String) throws -> Int {
+    // Calculate the precision of given value as a string.
+    return try decimal(fromIouValue: value).digits().count
 }
 
 func verifyNoDecimal(_ decimal: Decimal) throws {
@@ -132,7 +145,7 @@ func serializeIssuedCurrencyValue(_ value: String) throws -> [UInt8] {
      :return: A bytes object encoding the serialized value.
      */
     try verifyIouValue(value)
-    let decimalValue = Decimal(string: value)!
+    let decimalValue = try decimal(fromIouValue: value)
     if decimalValue.isZero {
         return try ZERO_CURRENCY_AMOUNT_HEX.data.toArray(type: UInt8.self).reversed()
     }
@@ -141,7 +154,9 @@ func serializeIssuedCurrencyValue(_ value: String) throws -> [UInt8] {
     let sign: Int = decimalValue.isSignMinus ? 1 : 0
     let digits: [String] = decimalValue.digits()
     var exp: Int = decimalValue.exponent
-    var mantissa = Int(digits.map({ String($0) }).joined())!
+    guard var mantissa = Int(digits.map({ String($0) }).joined()) else {
+        throw BinaryError.unknownError(error: "Amount overflow in issued currency value \(String(value))")
+    }
 
     // Canonicalize to expected range ---------------------------------------
     while mantissa < MIN_IOU_MANTISSA && exp > MIN_IOU_EXPONENT {
@@ -192,7 +207,10 @@ func serializeXrpAmount(_ value: String) throws -> [UInt8] {
      */
     try verifyXrpValue(value)
     // set the "is positive" bit (this is backwards from usual two's complement!)
-    let valueWithPosBit = Int(value)! | POS_SIGN_BIT_MASK
+    guard let drops = Int(value) else {
+        throw BinaryError.unknownError(error: "\(value) is an invalid XRP amount.")
+    }
+    let valueWithPosBit = drops | POS_SIGN_BIT_MASK
     return try valueWithPosBit.data.toArray(type: UInt8.self).reversed()
 }
 
@@ -204,10 +222,12 @@ func serializeIssuedCurrencyAmount(_ value: [String: String]) throws -> [UInt8] 
      Returns:
      The bytes representing the serialized issued currency amount.
      */
-    let amountString: String = value["value"]!
+    guard let amountString = value["value"], let currency = value["currency"], let issuer = value["issuer"] else {
+        throw BinaryError.unknownError(error: "An issued currency amount needs value, currency and issuer")
+    }
     let amountBytes: [UInt8] = try serializeIssuedCurrencyValue(amountString)
-    let currencyBytes: [UInt8] = try xCurrency.from(value["currency"]!).toBytes()
-    let issuerBytes: [UInt8] = try AccountID.from(value["issuer"]!).toBytes()
+    let currencyBytes: [UInt8] = try xCurrency.from(currency).toBytes()
+    let issuerBytes: [UInt8] = try AccountID.from(issuer).toBytes()
     return amountBytes + currencyBytes + issuerBytes
 }
 
@@ -242,7 +262,7 @@ class xAmount: SerializedType {
         return xAmount(try parser.read(numBytes))
     }
 
-    override func toJson() -> Any {
+    override func toJson() throws -> Any {
         /*
          Construct a JSON object representing this Amount.
 
@@ -257,9 +277,9 @@ class xAmount: SerializedType {
         }
 
         let parser = BinaryParser(hex: self.toHex())
-        let valueBytes: [UInt8] = try! parser.read(8)
-        let currency = xCurrency().fromParser(parser)
-        let issuer = AccountID().fromParser(parser)
+        let valueBytes: [UInt8] = try parser.read(8)
+        let currency = try xCurrency().fromParser(parser)
+        let issuer = try AccountID().fromParser(parser)
         let byte1: UInt8 = valueBytes[0]
         let byte2: UInt8 = valueBytes[1]
         let isPositive: UInt8 = byte1 & 0x40
@@ -274,12 +294,12 @@ class xAmount: SerializedType {
         } else {
             valueStr = value.description
         }
-        try! verifyIouValue(valueStr)
+        try verifyIouValue(valueStr)
 
         return [
             "value": valueStr,
-            "currency": currency.toJson() as Any,
-            "issuer": issuer.toJson() as Any
+            "currency": try currency.toJson() as Any,
+            "issuer": try issuer.toJson() as Any
         ]
     }
 

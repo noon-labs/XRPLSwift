@@ -39,6 +39,10 @@ public enum Base58 {
             return nil
         }
 
+        // A string that decodes to fewer bytes than a checksum cannot be valid (and `prefix(upTo:)` below would trap).
+        guard decodedChecksummedBytes.count >= checksumLength else {
+            return nil
+        }
         let decodedChecksum = decodedChecksummedBytes.suffix(checksumLength)
         let decodedBytes = decodedChecksummedBytes.prefix(upTo: decodedChecksummedBytes.count - checksumLength)
         let calculatedChecksum = calculateChecksum([UInt8](decodedBytes))

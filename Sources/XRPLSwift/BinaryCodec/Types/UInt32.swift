@@ -36,8 +36,8 @@ class xUInt32: xUInt {
     override func fromParser(
         _ parser: BinaryParser,
         _ hint: Int? = nil
-    ) -> xUInt32 {
-        return try! xUInt32(parser.read(WIDTH32))
+    ) throws -> xUInt32 {
+        return try xUInt32(parser.read(WIDTH32))
     }
 
     /*
@@ -53,15 +53,19 @@ class xUInt32: xUInt {
         if value < 0 {
             throw BinaryError.unknownError(error: "\(value) must be an unsigned integer")
         }
+        // Without this the value is truncated to the low 32 bits and a different number gets signed.
+        if value > Int(UInt32.max) {
+            throw BinaryError.unknownError(error: "\(value) does not fit in UInt32")
+        }
         let valueBytes = Array(value.data).prefix(WIDTH32)
         return xUInt32(Array(valueBytes).reversed())
     }
     
     class func from(_ value: String) throws -> xUInt32 {
         if let intValue = Int(value) {
-            return try! xUInt32.from(intValue)
+            return try xUInt32.from(intValue)
         }
-        let regex = try! NSRegularExpression(pattern: HEXREGEX32)
+        let regex = try NSRegularExpression(pattern: HEXREGEX32)
         let nsrange = NSRange(value.startIndex..<value.endIndex, in: value)
         if regex.matches(in: value, range: nsrange).isEmpty {
             throw BinaryError.unknownError(error: "\(value) is not a valid hex string")

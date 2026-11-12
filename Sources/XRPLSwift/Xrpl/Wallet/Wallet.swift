@@ -333,6 +333,11 @@ public class Wallet {
         if tx["TxnSignature"] != nil || tx["Signers"] != nil {
             throw ValidationError("txJSON must not contain `TxnSignature` or `Signers` properties")
         }
+        // The codec also accepts a numeric (or bridged boolean) TransactionType; a transaction is only signed when
+        // its type is given by name. This used to be enforced by a force cast that trapped in checkTxSerialization.
+        guard tx["TransactionType"] is String else {
+            throw ValidationError("txJSON must contain a `TransactionType` string")
+        }
 
         removeTrailingZeros(&tx)
 
@@ -374,7 +379,7 @@ public class Wallet {
      Returns true if a signedTransaction is valid.
      */
     public func verifyTransaction(_ signedTransaction: String) throws -> Bool {
-        let tx = BinaryCodec.decode(signedTransaction)
+        let tx = try BinaryCodec.decode(signedTransaction)
         let messageHex: String = try BinaryCodec.encodeForSigning(tx)
         let signature = tx["TxnSignature"] as? String
         return try Keypairs.verify(
@@ -410,7 +415,7 @@ public class Wallet {
      */
     private func checkTxSerialization(_ serialized: String, _ tx: [String: AnyObject]) throws {
         // Decode the serialized transaction:
-        var decoded: [String: AnyObject] = BinaryCodec.decode(serialized) as [String: AnyObject]
+        var decoded: [String: AnyObject] = try BinaryCodec.decode(serialized) as [String: AnyObject]
         //        var txCopy = try tx.toJson()
         var txCopy = tx
 
@@ -439,8 +444,10 @@ public class Wallet {
            Since decode goes to upper case, we set all tx memos to be uppercase for the comparison.
          */
         if let memos = txCopy["Memos"] as? [[String: AnyObject]] {
-            txCopy["Memos"] = memos.map { memoclone -> [String: AnyObject] in
-                var innerMemo = memoclone["Memo"] as! [String: AnyObject]
+            txCopy["Memos"] = try memos.map { memoclone -> [String: AnyObject] in
+                guard var innerMemo = memoclone["Memo"] as? [String: AnyObject] else {
+                    throw ValidationError("Each entry of Memos must be an object with a Memo field")
+                }
                 if let memoData = innerMemo["MemoData"] as? String {
                     innerMemo["MemoData"] = memoData.uppercased() as AnyObject
                 }
@@ -453,11 +460,11 @@ public class Wallet {
                 return innerMemo
             } as AnyObject
         }
-        if txCopy["TransactionType"] as! String == "NFTokenMint" && txCopy["URI"] != nil {
-            if !isHex(str: txCopy["URI"] as! String) {
+        if txCopy["TransactionType"] as? String == "NFTokenMint" && txCopy["URI"] != nil {
+            guard let uri = txCopy["URI"] as? String, isHex(str: uri) else {
                 throw ValidationError("URI must be a hex value")
             }
-            txCopy["URI"] = (txCopy["URI"] as! String).uppercased() as AnyObject
+            txCopy["URI"] = uri.uppercased() as AnyObject
         }
 
         try txCopy.forEach { (key: String, _: AnyObject) in
@@ -467,19 +474,25 @@ public class Wallet {
                 // Nothing to compare for them; a force cast here crashed when signing a tx that still carried one.
                 guard let decodedValue = decoded[key] as? [String: String] else { return }
                 let decodedAmount: Any = try xAmount.from(decodedValue).toJson()
-                var decodedIC = try IssuedCurrencyAmount(decodedAmount as! [String: AnyObject])
+                guard
+                    let decodedAmountJson = decodedAmount as? [String: AnyObject],
+                    let txAmountJson = txCopy[key] as? [String: AnyObject]
+                else {
+                    throw ValidationError("\(key) is not a valid issued currency amount")
+                }
+                var decodedIC = try IssuedCurrencyAmount(decodedAmountJson)
                 let decodedCurrency = decodedIC.currency
-                let txCurrency = try IssuedCurrencyAmount(txCopy[key] as! [String: AnyObject]).currency
+                let txCurrency = try IssuedCurrencyAmount(txAmountJson).currency
 
                 if txCurrency.count == standardCurrencyCodeLen && txCurrency.uppercased() == "XRP" {
                     throw ValidationError("Trying to sign an issued currency with a similar standard code to XRP (received \(txCurrency)'). XRP is not an issued currency.")
                 }
 
                 // Standardize the format of currency codes to the 40 byte hex string for comparison
-                let amount = try IssuedCurrencyAmount(txCopy[key] as! [String: AnyObject])
+                let amount = try IssuedCurrencyAmount(txAmountJson)
                 if amount.currency.count != decodedCurrency.count {
                     if decodedCurrency.count == standardCurrencyCodeLen {
-                        decodedIC.currency = isoToHex(decodedCurrency)
+                        decodedIC.currency = try isoToHex(decodedCurrency)
                     } else {
                         //                        txCopy[key]!["currency"] = isoToHex(iso: amount.currency)
                     }
@@ -550,8 +563,8 @@ func removeTrailingZeros(_ tx: inout [String: AnyObject]) {
  - returns:
  ISO Bytes
  */
-func isoToHex(_ iso: String) -> String {
-    return try! isoToBytes(iso: iso).toHex
+func isoToHex(_ iso: String) throws -> String {
+    return try isoToBytes(iso: iso).toHex
 }
 
 public func == (lhs: [String: AnyObject], rhs: [String: AnyObject]) -> Bool {

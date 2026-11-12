@@ -22,7 +22,7 @@ final class TestHash128: XCTestCase {
 
         let fromConstructor: Hash128 = Hash128(self.hex_128_bits.hexToBytes)
         let fromValue: SerializedType = try! Hash128.from(self.hex_128_bits)
-        let fromParser: Hash = Hash128().fromParser(self.parser!)
+        let fromParser: Hash = try! Hash128().fromParser(self.parser!)
         XCTAssertEqual(fromConstructor.toHex(), self.hex_128_bits)
         XCTAssertEqual(fromValue.toHex(), self.hex_128_bits)
         XCTAssertEqual(fromParser.toHex(), self.hex_128_bits)
@@ -53,7 +53,7 @@ final class TestHash160: XCTestCase {
 
         let fromConstructor: Hash160 = Hash160(self.hex_160_bits.hexToBytes)
         let fromValue: SerializedType = try! Hash160.from(self.hex_160_bits)
-        let fromParser: Hash = Hash160().fromParser(self.parser!)
+        let fromParser: Hash = try! Hash160().fromParser(self.parser!)
         XCTAssertEqual(fromConstructor.toHex(), self.hex_160_bits)
         XCTAssertEqual(fromValue.toHex(), self.hex_160_bits)
         XCTAssertEqual(fromParser.toHex(), self.hex_160_bits)
@@ -84,7 +84,7 @@ final class TestHash256: XCTestCase {
 
         let fromConstructor: Hash256 = Hash256(self.hex_256_bits.hexToBytes)
         let fromValue: SerializedType = try! Hash256.from(self.hex_256_bits)
-        let fromParser: Hash = Hash256().fromParser(self.parser!)
+        let fromParser: Hash = try! Hash256().fromParser(self.parser!)
         XCTAssertEqual(fromConstructor.toHex(), self.hex_256_bits)
         XCTAssertEqual(fromValue.toHex(), self.hex_256_bits)
         XCTAssertEqual(fromParser.toHex(), self.hex_256_bits)

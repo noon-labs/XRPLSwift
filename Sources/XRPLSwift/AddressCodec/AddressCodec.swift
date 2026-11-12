@@ -75,6 +75,10 @@ public class AddressCodec {
         guard let data = Data(base58Decoding: xAddress) else {
             throw AddressCodecError.valueError
         }
+        // prefix(2) + account ID(20) + flags(1) + tag(8) + checksum(4)
+        guard data.count == 35 else {
+            throw AddressCodecError.invalidAddress
+        }
         let check = Array(data.suffix(4))
         let concatenated = Array(data.prefix(31))
         if check != [UInt8](Data(concatenated).sha256().sha256().prefix(through: 3)) {

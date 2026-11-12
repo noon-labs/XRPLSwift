@@ -30,6 +30,6 @@ final class TestVector256: XCTestCase {
 
     func testToJson() {
         let vector256Object: Vector256 = try! Vector256.from(HASH_LIST)
-        XCTAssertEqual(vector256Object.toJson(), HASH_LIST)
+        XCTAssertEqual(try vector256Object.toJson(), HASH_LIST)
     }
 }

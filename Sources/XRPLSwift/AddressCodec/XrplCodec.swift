@@ -69,6 +69,9 @@ public class XrplCodec {
         guard let decodedData = Base58.base58CheckDecode(b58String) else {
             throw AddressCodecError.invalidCheckSum()
         }
+        guard decodedData.count >= prefixLength else {
+            throw AddressCodecError.invalidPrefix()
+        }
         if [UInt8](decodedData[0..<(prefixLength)]) != prefix {
             throw AddressCodecError.invalidPrefix()
         }

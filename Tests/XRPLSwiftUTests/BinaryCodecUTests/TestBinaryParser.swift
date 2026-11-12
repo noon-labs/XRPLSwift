@@ -48,7 +48,7 @@ final class TestBinaryParser: XCTestCase {
             let binarySerializer = BinarySerializer()
             let byteString: String = String(repeating: "A2", count: _case)
             let blob = try! Blob.from(byteString)
-            binarySerializer.writeLengthEncoded(blob)
+            try! binarySerializer.writeLengthEncoded(blob)
 
             // hex string representation of encoded length prefix
             let encodedLength = binarySerializer.sink.toHex()

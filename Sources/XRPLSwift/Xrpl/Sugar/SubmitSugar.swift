@@ -127,7 +127,7 @@ func submitAndWait(
         opts?.wallet
     )
 
-    let lastLedger: Int? = getLastLedgerSequence(signedTx)
+    let lastLedger: Int? = try getLastLedgerSequence(signedTx)
     if lastLedger == nil {
         throw ValidationError("Transaction must contain a LastLedgerSequence value for reliable submission.")
     }
@@ -168,7 +168,7 @@ func submitRequest(
     _ failHard: Bool? = false
     // ) async throws -> EventLoopFuture<SubmitResponse> {
 ) async throws -> EventLoopFuture<Any> {
-    if !isSigned(signedTransaction) {
+    if !(try isSigned(signedTransaction)) {
         throw ValidationError("Transaction must be signed")
     }
 
@@ -242,8 +242,8 @@ func submitRequest(
 // }
 
 // checks if the transaction has been signed
-func isSigned(_ transaction: String) -> Bool {
-    let tx = BinaryCodec.decode(transaction)
+func isSigned(_ transaction: String) throws -> Bool {
+    let tx = try BinaryCodec.decode(transaction)
     return isSigned(tx)
 }
 func isSigned(_ transaction: [String: AnyObject]) -> Bool {
@@ -258,7 +258,7 @@ func getSignedTx(
     _ wallet: Wallet?
     // ) async throws -> EventLoopFuture<String> {
 ) async throws -> String {
-    if isSigned(transaction) {
+    if try isSigned(transaction) {
         return transaction
     }
 
@@ -266,7 +266,7 @@ func getSignedTx(
         throw ValidationError("Wallet must be provided when submitting an unsigned transaction")
     }
 
-    var tx = BinaryCodec.decode(transaction)
+    var tx = try BinaryCodec.decode(transaction)
     if autofill {
         tx = try await AutoFillSugar().autofill(client, tx, 0).wait()
     }
@@ -293,8 +293,8 @@ func getSignedTx(
 }
 
 // checks if there is a LastLedgerSequence as a part of the transaction
-func getLastLedgerSequence(_ transaction: String) -> Int? {
-    let tx = BinaryCodec.decode(transaction)
+func getLastLedgerSequence(_ transaction: String) throws -> Int? {
+    let tx = try BinaryCodec.decode(transaction)
     return tx["LastLedgerSequence"] as? Int
 }
 

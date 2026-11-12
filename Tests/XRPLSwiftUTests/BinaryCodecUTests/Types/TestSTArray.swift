@@ -34,20 +34,20 @@ final class TestSTArray: XCTestCase {
 
     func testFromParser() {
         let parser: BinaryParser = BinaryParser(hex: BUFFER)
-        let serializedList: SerializedType = STArray().fromParser(parser, nil)
+        let serializedList: SerializedType = try! STArray().fromParser(parser, nil)
         XCTAssertEqual(BUFFER, serializedList.str())
     }
 
     func testFromValueToJson() {
         let serializedList: STArray = try! STArray.from(value: EXPECTED_JSON)
-        let actualJson: [[String: AnyObject]] = serializedList.toJson()
+        let actualJson: [[String: AnyObject]] = try! serializedList.toJson()
         //        XCTAssertEqual(actualJson[0], actualJson[1])
         //        XCTAssertEqual(actualJson, EXPECTED_JSON)
     }
 
     func testFromParserToJson() {
         let parser: BinaryParser = BinaryParser(hex: BUFFER)
-        let serializedList: STArray = STArray().fromParser(parser)
+        let serializedList: STArray = try! STArray().fromParser(parser)
         //        XCTAssertEqual(serializedList.toJson() as? [[String: AnyObject]], EXPECTED_JSON)
     }
 

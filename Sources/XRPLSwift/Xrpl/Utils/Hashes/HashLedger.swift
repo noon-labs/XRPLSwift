@@ -45,7 +45,7 @@ class HashLedger {
 
     static func hashSignedTx(_ tx: String) throws -> String {
         let txBlob: String = tx
-        let txObject: [String: AnyObject] = BinaryCodec.decode(tx)
+        let txObject: [String: AnyObject] = try BinaryCodec.decode(tx)
 
         if txObject["TxnSignature"] == nil && txObject["Signers"] == nil {
             throw ValidationError("The transaction must be signed to hash it.")

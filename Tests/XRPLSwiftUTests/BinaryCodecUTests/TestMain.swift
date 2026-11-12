@@ -127,7 +127,7 @@ final class TestBinarySimple: XCTestCase {
 
     func testSimple() {
         let encoded = try! BinaryCodec.encode(TX_JSON)
-        let decoded = BinaryCodec.decode(encoded)
+        let decoded = try! BinaryCodec.decode(encoded)
         XCTAssert(TX_JSON == decoded)
     }
 
@@ -135,7 +135,7 @@ final class TestBinarySimple: XCTestCase {
         var clone = TX_JSON
         clone["Amount"] = "1000" as AnyObject
         clone["Fee"] = "10" as AnyObject
-        XCTAssert(BinaryCodec.decode(try! BinaryCodec.encode(clone)) == clone)
+        XCTAssert(try BinaryCodec.decode(try! BinaryCodec.encode(clone)) == clone)
     }
 
     func testInvalidAmountFee() {
@@ -248,7 +248,7 @@ final class TestMainFixtures: XCTestCase {
         let xJson: [String: AnyObject] = test["xjson"] as! [String: AnyObject]
         let rJson: [String: AnyObject] = test["rjson"] as! [String: AnyObject]
         XCTAssertEqual(try BinaryCodec.encode(xJson), try BinaryCodec.encode(rJson))
-        XCTAssertTrue(BinaryCodec.decode(try BinaryCodec.encode(xJson)) == rJson)
+        XCTAssertTrue(try BinaryCodec.decode(try BinaryCodec.encode(xJson)) == rJson)
     }
 
     func runFixturesTest(filename: String, category: String, testMethod: Any) {

@@ -44,7 +44,10 @@ public class BinaryCodec {
      */
     class func encode(_ data: Data) throws -> String {
         let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
-        return try serializeJson(jsonResult as! [String: Any])
+        guard let json = jsonResult as? [String: Any] else {
+            throw BinaryError.unknownError(error: "Cannot encode: top-level JSON value is not an object")
+        }
+        return try serializeJson(json)
     }
 
     /**
@@ -74,7 +77,10 @@ public class BinaryCodec {
     class func encodeForSigningClaim(_ claim: ChannelClaim) throws -> String {
         let prefix: Data = PAYMENT_CHANNEL_CLAIM_PREFIX
         let channel: Hash = try Hash256.from(claim.channel)
-        let amount: xUInt64 = try xUInt64.from(Int(claim.amount)!)
+        guard let claimAmount = Int(claim.amount) else {
+            throw BinaryError.unknownError(error: "Invalid claim amount: \(claim.amount)")
+        }
+        let amount: xUInt64 = try xUInt64.from(claimAmount)
         let buffer: Data = prefix + channel.bytes + amount.bytes
         return buffer.toHex
     }
@@ -107,10 +113,10 @@ public class BinaryCodec {
      - returns:
      A JSON-like dictionary representation of the transaction.
      */
-    public class func decode(_ buffer: String) -> [String: AnyObject] {
+    public class func decode(_ buffer: String) throws -> [String: AnyObject] {
         let parser = BinaryParser(hex: buffer)
-        let parsedType: SerializedType = try! parser.readType(STObject.self)
-        return parsedType.toJson()
+        let parsedType: SerializedType = try parser.readType(STObject.self)
+        return try parsedType.toJson()
     }
 
     /**

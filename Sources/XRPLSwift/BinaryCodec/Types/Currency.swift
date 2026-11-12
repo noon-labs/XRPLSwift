@@ -94,18 +94,18 @@ class xCurrency: Hash160 {
     override func fromParser(
         _ parser: BinaryParser,
         _ hint: Int? = nil
-    ) -> xCurrency {
-        return xCurrency(try! parser.read(hint ?? LENGTH20))
+    ) throws -> xCurrency {
+        return xCurrency(try parser.read(hint ?? LENGTH20))
     }
 
-    override func toJson() -> Any {
+    override func toJson() throws -> Any {
         if self.iso != nil {
             return self.iso!
         }
         return self.bytes.toHex
     }
 
-    override func toJson() -> String {
-        return (self.toJson() as Any) as! String
+    override func toJson() throws -> String {
+        return (try self.toJson() as Any) as! String
     }
 }

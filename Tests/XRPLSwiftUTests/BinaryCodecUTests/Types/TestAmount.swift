@@ -126,7 +126,7 @@ final class TestAmount: XCTestCase {
         for (serialized, json) in IOU_CASES {
             let parser: BinaryParser = BinaryParser(hex: serialized)
             let amountObject: xAmount = try! xAmount().fromParser(parser)
-            let result: Any = amountObject.toJson()
+            let result: Any = try! amountObject.toJson()
             XCTAssertEqual(result as! [String: String], json)
         }
     }
@@ -135,7 +135,7 @@ final class TestAmount: XCTestCase {
         for (json, serialized) in XRP_CASES {
             let parser: BinaryParser = BinaryParser(hex: serialized)
             let amountObject: xAmount = try! xAmount().fromParser(parser)
-            let result: Any = amountObject.toJson()
+            let result: Any = try! amountObject.toJson()
             XCTAssertEqual(result as! String, json)
         }
     }

@@ -26,16 +26,16 @@ class STArray: SerializedType {
         super.init(bytes ?? [])
     }
 
-    override func fromParser(_ parser: BinaryParser, _ hint: Int? = nil) -> STArray {
+    override func fromParser(_ parser: BinaryParser, _ hint: Int? = nil) throws -> STArray {
         var bytestring: [UInt8] = []
 
         while !parser.end() {
-            let field = try! parser.readField()
+            let field = try parser.readField()
             if field.name == ARRAY_END_MARKER_NAME {
                 break
             }
             bytestring += field.header.toBytes()
-            bytestring += try! parser.readFieldValue(field)!.bytes
+            bytestring += try parser.readFieldValue(field).bytes
             bytestring += _OBJECT_END_MARKER
         }
 
@@ -59,20 +59,20 @@ class STArray: SerializedType {
 
     /// STObject.toJson 은 값을 `toJson() -> Any` 로 꺼내므로, 이 재정의가 없으면 배열 필드(Memos·Signers·AuthAccounts)가
     /// 디코딩 시 hex 문자열로 나온다.
-    override func toJson() -> Any {
-        return (self.toJson() as [[String: AnyObject]])
+    override func toJson() throws -> Any {
+        return (try self.toJson() as [[String: AnyObject]])
     }
 
-    override func toJson() -> [[String: AnyObject]] {
+    override func toJson() throws -> [[String: AnyObject]] {
         var result: [[String: AnyObject]] = []
         let parser = BinaryParser(hex: self.str())
         while !parser.end() {
-            let field = try! parser.readField()
+            let field = try parser.readField()
             if field.name == ARRAY_END_MARKER_NAME {
                 break
             }
             var outer: [String: AnyObject] = [:]
-            let copy: [String: Any] = STObject().fromParser(parser).toJson()
+            let copy: [String: Any] = try STObject().fromParser(parser).toJson()
             outer[field.name] = copy as AnyObject
             result.append(outer)
         }

@@ -59,16 +59,16 @@ class xIssue: SerializedType {
         return xIssue(currency + issuer)
     }
 
-    override func toJson() -> Any {
-        return (self.toJson() as [String: AnyObject])
+    override func toJson() throws -> Any {
+        return (try self.toJson() as [String: AnyObject])
     }
 
-    override func toJson() -> [String: AnyObject] {
+    override func toJson() throws -> [String: AnyObject] {
         let currency = xCurrency([UInt8](self.bytes[0..<CURRENCY_CODE_LENGTH]))
-        var json: [String: AnyObject] = ["currency": (currency.toJson() as String) as AnyObject]
+        var json: [String: AnyObject] = ["currency": (try currency.toJson() as String) as AnyObject]
         if self.bytes.count > CURRENCY_CODE_LENGTH {
             let issuer = AccountID([UInt8](self.bytes[CURRENCY_CODE_LENGTH..<(CURRENCY_CODE_LENGTH + AccountID.LENGTH)]))
-            json["issuer"] = (issuer.toJson() as Any) as AnyObject
+            json["issuer"] = (try issuer.toJson() as Any) as AnyObject
         }
         return json
     }

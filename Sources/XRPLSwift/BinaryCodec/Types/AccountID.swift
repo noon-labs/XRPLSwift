@@ -44,20 +44,28 @@ class AccountID: Hash160 {
             if tag != 0 {
                 throw BinaryError.unknownError(error: "Only allowed to have tag on Account or Destination")
             }
-            return AccountID(try XrplCodec.decodeClassicAddress(classic))
+            return try AccountID.fromClassic(classic)
         } else {
-            return AccountID(try XrplCodec.decodeClassicAddress(value))
+            return try AccountID.fromClassic(value)
         }
+    }
+
+    private static func fromClassic(_ classicAddress: String) throws -> AccountID {
+        let bytes = try XrplCodec.decodeClassicAddress(classicAddress)
+        guard bytes.count == LENGTH else {
+            throw BinaryError.unknownError(error: "Invalid account ID length \(bytes.count). Expected \(LENGTH)")
+        }
+        return AccountID(bytes)
     }
 
     override func fromParser(
         _ parser: BinaryParser,
         _ hint: Int? = nil
-    ) -> AccountID {
-        return AccountID(try! parser.read(hint ?? LENGTH20))
+    ) throws -> AccountID {
+        return AccountID(try parser.read(hint ?? LENGTH20))
     }
 
-    override func toJson() -> Any {
-        return try! XrplCodec.encodeClassicAddress(self.bytes)
+    override func toJson() throws -> Any {
+        return try XrplCodec.encodeClassicAddress(self.bytes)
     }
 }
